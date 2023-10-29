@@ -3,13 +3,13 @@ pipeline {
     stages {
         stage('Instalar Java 17') {
             steps {
-                sh 'sudo apt update'
-                sh 'sudo apt install openjdk-17-jre -y'
+                sh 'apt update'
+                sh 'apt install openjdk-17-jre -y'
             }
         }
         stage('Instalar Maven') {
             steps {
-                sh 'sudo apt install maven -y'
+                sh 'apt install maven -y'
             }
         }
         stage('Clonar Repositorio') {
