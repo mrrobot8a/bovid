@@ -11,7 +11,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -19,13 +19,13 @@ import org.slf4j.Logger;
 import com.alcadia.bovid.Exception.ErrorMessage;
 import com.alcadia.bovid.Exception.FtpErrors;
 import com.alcadia.bovid.Service.UserCase.IFtpService;
-import com.alcadia.bovid.Service.Util.Utils;
+
 import com.itextpdf.io.exceptions.IOException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class FtpServiceimpl implements IFtpService {
     private final static String UPLOADS_FOLDER = "uploads/";
 
 
-    private final ObjectMapper objectMapper;
+
 
     private FTPClient ftpconnection;
 
@@ -63,7 +63,7 @@ public class FtpServiceimpl implements IFtpService {
             ftpconnection.connect(server);
             log.info("logservide", ftpconnection.getReplyCode());
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(-1,
                     "No fue posible conectarse al FTP a través del host=" + server);
             log.error(errorMessage.toString());
@@ -76,7 +76,7 @@ public class FtpServiceimpl implements IFtpService {
 
             try {
                 ftpconnection.disconnect();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 ErrorMessage errorMessage = new ErrorMessage(-2,
                         "No fue posible conectarse al FTP, el host=" + server + " entregó la respuesta=" + reply);
                 log.error(errorMessage.toString());
@@ -86,7 +86,7 @@ public class FtpServiceimpl implements IFtpService {
 
         try {
             ftpconnection.login(user, pass);
-        } catch (IOException e) {
+        } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(-3,
                     "El usuario=" + user + ", y el pass=**** no fueron válidos para la autenticación.");
             log.error(errorMessage.toString());
@@ -95,7 +95,7 @@ public class FtpServiceimpl implements IFtpService {
 
         try {
             ftpconnection.setFileType(FTP.BINARY_FILE_TYPE);
-        } catch (IOException e) {
+        } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(-4, "El tipo de dato para la transferencia no es válido.");
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
@@ -111,18 +111,18 @@ public class FtpServiceimpl implements IFtpService {
             // InputStream input = new FileInputStream(file);
             this.ftpconnection.storeFile(ftpHostDir + serverFilename, file);
 
-        } catch (IOException e) {
-            ErrorMessage errorMessage = new ErrorMessage(-5, "No se pudo subir el archivo al servidor.");
+        } catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(-5, "No se pudo subir el archivo al servidor." + e.getMessage());
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
         }
     }
 
     @Override
-    public InputStream downloadFileFromFTP(String ftpRelativePath) throws FtpErrors, java.io.IOException {
+    public InputStream downloadFileFromFTP(String ftpRelativePath , String folder) throws FtpErrors, java.io.IOException {
         InputStream inputStream;
         try {
-            inputStream = ftpconnection.retrieveFileStream(Utils.NAME_FOLDER + ftpRelativePath);
+            inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
 
             if (inputStream == null) {
                 ErrorMessage errorMessage = new ErrorMessage(-7, "No se pudo descargar el archivo.");
@@ -130,7 +130,7 @@ public class FtpServiceimpl implements IFtpService {
                 throw new FtpErrors(errorMessage);
             }
             return inputStream;
-        } catch (IOException e) {
+        } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(-7, "No se pudo descargar el archivo.");
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
@@ -153,7 +153,7 @@ public class FtpServiceimpl implements IFtpService {
         // inputStream.close();
 
         // return file;
-        // } catch (IOException e) {
+        // } catch (Exception e) {
         // ErrorMessage errorMessage = new ErrorMessage(-6, "No se pudo obtener la
         // referencia al archivo descargado.");
         // log.error(errorMessage.toString());

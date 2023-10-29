@@ -1,8 +1,11 @@
 package com.alcadia.bovid.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +19,12 @@ import com.alcadia.bovid.Models.Entity.HisotiralAuditor;
 import com.alcadia.bovid.Models.Entity.User;
 import com.alcadia.bovid.Repository.Dao.IHistorialAuditoriaRepository;
 import com.alcadia.bovid.Service.Mappers.HistoryMapper;
-import com.alcadia.bovid.Service.UserCase.IHistorialAuditoriaService;
-import com.alcadia.bovid.Service.UserCase.IRequestService;
-import com.itextpdf.commons.bouncycastle.cert.ocsp.IReq;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.alcadia.bovid.Service.UserCase.IHistorialAuditoriaService;
+import com.alcadia.bovid.Service.UserCase.IUserService;
+
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,23 +34,43 @@ import lombok.extern.slf4j.Slf4j;
 public class HistorialAuditoriaServiceImpl implements IHistorialAuditoriaService {
 
     final private IHistorialAuditoriaRepository historialAuditoriaRepository;
-    final private IRequestService requestService;
+    
+    final private IUserService userService;
 
     @Override
-    public String registerHistorial(HttpServletRequest servletRequest, User user) {
+    @Transactional
+    public void registerHistorial(String actionUser, String ipClient, String httpMethod, String url, String emailUser) {
+        try {
 
-        HisotiralAuditor hisotiralAuditor = new HisotiralAuditor();
+            HisotiralAuditor hisotiralAuditor = new HisotiralAuditor();
 
-        final String ipClient = requestService.getClientIp(servletRequest);
+            if (actionUser.equals("signOut")) {
+                hisotiralAuditor.setLogoutDate(new Date());
+            }
 
-        hisotiralAuditor.setIpComputer(ipClient);
-        hisotiralAuditor.setUsers(user);
+            //
+            User userEntity = userService.findByEmail(emailUser);
 
-        historialAuditoriaRepository.save(hisotiralAuditor);
+            System.out.println("histori====================================" + httpMethod + url);
 
-        log.info(hisotiralAuditor.toString());
+            hisotiralAuditor.setHttpMethod(httpMethod);
+            hisotiralAuditor.setActionUser(actionUser);
+            hisotiralAuditor.setUrl(url);
+            hisotiralAuditor.setIpComputer(ipClient);
 
-        return null;
+            hisotiralAuditor.setUsers(userEntity);
+
+            historialAuditoriaRepository.save(hisotiralAuditor);
+
+            log.info(hisotiralAuditor.toString());
+
+        } catch (DataAccessException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+
+            System.out.println("=============" + response);
+
+        }
 
     }
 
@@ -57,14 +81,15 @@ public class HistorialAuditoriaServiceImpl implements IHistorialAuditoriaService
     }
 
     @Override
-    public Boolean logout(Long idUser, HttpServletRequest servletRequest) {
+    public Boolean logout(String emailUser) {
 
-        Set<HisotiralAuditor> historialEntity = findByUsersId(idUser);
-        historialEntity.forEach(historial -> {
-            historial.setLogoutDate(new Date());
-        });
+        // Set<HisotiralAuditor> historialEntity = userService.findByEmail(emailUser);
 
-        historialAuditoriaRepository.saveAll(historialEntity);
+        // historialEntity.forEach(historial -> {
+        // historial.setLogoutDate(new Date());
+        // });
+
+        // // historialAuditoriaRepository.saveAll(historialEntity);
 
         return true;
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSendException;
+
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +27,7 @@ import com.alcadia.bovid.Models.Dto.RegistrationResponse;
 import com.alcadia.bovid.Models.Entity.User;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import jakarta.mail.MessagingException;
 
 import lombok.RequiredArgsConstructor;
@@ -42,8 +43,7 @@ public class LoginController {
     private final IAuthenticationService AuthUseService;
 
     private final RegistrationCompleteEventListener eventListener;
-  
-    
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest userRequest)
             throws MessagingException, UnsupportedEncodingException {
@@ -51,38 +51,43 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            
 
             RegistrationResponse userResponse = userService.registerUser(userRequest);
-            //poner el envio de correo en el service del usuario 
-            if (!sendCredencial(userResponse)) {
-                userService.deleteUser(userRequest);
-                response.put("clase", "error desde el envio de correo");
-                response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            // poner el envio de correo en el service del usuario
+            // if (!eventListener.sendCredencial(userRequest)) {
+            //     userService.deleteUser(userRequest);
+            //     response.put("error", "error desde el envio de correo");
+            //     response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
+            //     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
-            }
+            // }
             response.put("usuario", userResponse);
             response.put("mensaje", "SUCCESS TO REGISTER USER");
 
-        } catch (Exception e) {
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (MessagingException e) {
             // Maneja la excepción aquí si ocurre algún error, como un error en la base de
             // datos
             response.put("error", "Error al registrar usuario: " + e.getMessage());
+            response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
+            response.put("trac", e.getStackTrace() + "\n" + e.getCause());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
+    
+    
     @PostMapping(path = "/sign-out")
-    public ResponseEntity<String> signOut(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwt  ) {
+    public ResponseEntity<String> signOut(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(AuthUseService.signOut(jwt));
     }
 
     @PostMapping(path = "/sign-in")
-    public ResponseEntity<String> signIn(@RequestBody RegistrationRequest authCustomerDto, final HttpServletRequest servletRequest) {
-        System.out.println(authCustomerDto);
-        return ResponseEntity.ok(AuthUseService.signIn(authCustomerDto , servletRequest));
+    public ResponseEntity<String> signIn(@RequestBody RegistrationRequest authCustomerDto,
+            final HttpServletRequest servletRequest) {
+        System.out.println("signIn====================auth======="+authCustomerDto);
+        return ResponseEntity.ok(AuthUseService.signIn(authCustomerDto, servletRequest));
     }
 
     /**
@@ -96,18 +101,18 @@ public class LoginController {
     public String resetPasswordRequest(@RequestBody PasswordRequestUtil passwordRequestUtil,
             final HttpServletRequest servletRequest)
             throws MessagingException, UnsupportedEncodingException {
-
-        Optional<User> user = userService.findByEmail(passwordRequestUtil.getEmail());
+         System.out.println("passwordRequestUtil====================auth======="+passwordRequestUtil);
+        User user = userService.findByEmail(passwordRequestUtil.getEmail());
 
         String passwordResetUrl = "";
 
-        if (user.isPresent()) {
+        if (user != null) {
 
             String passwordResetToken = UUID.randomUUID().toString();
 
-            passwordResetUrl = passwordResetEmailLink(user.get(), applicationUrl(servletRequest), passwordResetToken);
+            passwordResetUrl = passwordResetEmailLink(user, applicationUrl(servletRequest), passwordResetToken);
 
-            userService.createPasswordResetTokenForUser(user.get(), passwordResetToken);
+            userService.createPasswordResetTokenForUser(user, passwordResetToken);
 
             return passwordResetUrl;
 
@@ -150,40 +155,7 @@ public class LoginController {
         return "Invalid password reset token";
     }
 
-    private boolean sendCredencial(RegistrationResponse userRequest)
-            throws UnsupportedEncodingException, MessagingException {
-
-        int maxRetries = 3; // Número máximo de reintentos
-        int retryDelayMillis = 1000; // Intervalo de tiempo entre reintentos en milisegundos (1 segundo en este caso)
-
-        for (int retryCount = 0; retryCount < maxRetries; retryCount++) {
-            try {
-                // Llamar al método que puede lanzar una excepción
-                eventListener.sendCrendecialtoUserEmail(userRequest);
-
-                // Si la operación tiene éxito, sal del bucle
-                // break;
-
-                return true;
-            } catch (MailSendException e) {
-                System.out.println(e.getMessage());
-                // Captura y maneja la excepción que indica un error al enviar el correo
-                if (retryCount < maxRetries - 1) {
-                    // Espera antes de realizar el siguiente intento
-                    try {
-                        Thread.sleep(retryDelayMillis);
-                    } catch (InterruptedException interruptedException) {
-                        Thread.currentThread().interrupt(); // Preserve the interrupt status
-                    }
-                } else {
-                    // Si se supera el límite de reintentos, maneja el error de manera adecuada
-                    // handleEmailSendingFailure(e);
-                }
-            }
-        }
-        return false;
-    }
-
+   
     /**
      * @param user
      * @param applicationUrl

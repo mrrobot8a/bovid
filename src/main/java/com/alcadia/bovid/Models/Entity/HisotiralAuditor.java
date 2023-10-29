@@ -39,14 +39,21 @@ public class HisotiralAuditor {
 
     private String ipComputer;
 
+    private String httpMethod;
+
+    private String actionUser;
+   
+    @Column(name = "url" , length = 150 , columnDefinition = "varchar(150)")
+    private String url;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "fecha_inicio")
-    private Date fechaIncio;
+    @Column(name = "SingIn_Date")
+    private Date SingInDate;
 
   
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "fecha_Cierre")
+    @Column(name = "logout_date")
     private Date LogoutDate;
 
     @CreationTimestamp

@@ -1,8 +1,10 @@
 package com.alcadia.bovid.Exception;
 
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
+@Setter
 public class ErrorResponse {
 
     private String message;

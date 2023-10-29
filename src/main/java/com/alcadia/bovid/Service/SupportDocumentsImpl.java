@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alcadia.bovid.Exception.CustomerNotExistException;
 import com.alcadia.bovid.Exception.ErrorMessage;
 import com.alcadia.bovid.Exception.FtpErrors;
 import com.alcadia.bovid.Models.Entity.SupportDocument;
@@ -17,7 +18,6 @@ import com.alcadia.bovid.Service.UserCase.ISupportDocumentsService;
 import com.alcadia.bovid.Service.Util.Utils;
 import com.itextpdf.io.exceptions.IOException;
 
-import ch.qos.logback.classic.pattern.Util;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +33,14 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
     @Override
     @Transactional
-    public SupportDocument saveFileDocument(MultipartFile file, String nameFile, String urlFile) {
+    public SupportDocument saveFileDocument(MultipartFile file, String nameFile, String folder)
+            throws IOException, SocketException, java.io.IOException {
 
         try {
 
             ftpServiceimpl.connectToFTP();
+
+            String urlFile = Utils.URL_BASE.concat(nameFile);
 
             InputStream inputStream = file.getInputStream();
 
@@ -46,18 +49,41 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             supportDocuments.setFileName(StringUtils.cleanPath(file.getOriginalFilename()));
             supportDocuments.setUrlFile(urlFile);
 
-            ftpServiceimpl.uploadFileToFTP(inputStream, Utils.NAME_FOLDER, nameFile);
+            ftpServiceimpl.uploadFileToFTP(inputStream, folder, nameFile);
 
             inputStream.close(); // cerrar el inputstream
             ftpServiceimpl.disconnectFTP(); // desconectar el ftp
             return supportDocumentsRepository.save(supportDocuments);
 
-        } catch (Exception e) {
+        } catch (IOException e) {
 
-            log.error("Error al guardar el documento de soporte", e);
+            log.error("Error al guardar el documento de soporte", e.getStackTrace().toString());
+            ErrorMessage errorMessage = new ErrorMessage(-5,
+                    "No se pudo subir el archivo al servidor." + e.getMessage());
 
-            return null;
+            throw new CustomerNotExistException(e.getMessage());
         }
+
+    }
+
+    @Override
+    @Transactional
+    public SupportDocument saveFileImage(MultipartFile file, String nameFile, String folder)
+            throws IOException, SocketException, java.io.IOException {
+        // Proporciona valores predeterminados para "urlFile" y "folder"
+
+        ftpServiceimpl.connectToFTP();
+
+        InputStream inputStream = file.getInputStream();
+
+        String urlFile = Utils.URL_BASE.concat(nameFile);
+        System.out.println("el nombre del archivo es: " + urlFile);
+
+        ftpServiceimpl.uploadFileToFTP(inputStream, folder, nameFile);
+        inputStream.close(); // cerrar el inputstream
+        ftpServiceimpl.disconnectFTP(); // desconectar el ftp
+
+        return SupportDocument.builder().urlFile(urlFile).build();
 
     }
 
@@ -68,11 +94,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
         try {
 
-          
-
-           
-
-            if (!supportDocumentsRepository.existsByUrlFile(Utils.URL_BASE.concat(fileName))) {
+            if (!supportDocumentsRepository.existsByUrlFile(Utils.URL_BASE.concat(fileName)) && !fileName.toLowerCase().endsWith(".jpg")) {
                 ErrorMessage errorMessage = new ErrorMessage(-1,
                         "No existe el archivo en la base de datos");
                 log.error(errorMessage.toString());
@@ -81,7 +103,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
             ftpServiceimpl.connectToFTP();
             // ftpServiceimpl.getallFiles();
-            InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName);
+            InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,Utils.NAME_FOLDER_SUPPORTDOCUMENTS);
             InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
             ftpServiceimpl.disconnectFTP();
             return fileResource;

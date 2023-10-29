@@ -14,7 +14,7 @@ import com.alcadia.bovid.Models.Dto.UserDto;
 
 import com.alcadia.bovid.Models.Entity.User;
 
-public enum UserToUserDto implements Function<User, UserDto> {
+public enum UserMapper implements Function<User, UserDto> {
     INSTANCE;
 
     @Override
@@ -24,6 +24,8 @@ public enum UserToUserDto implements Function<User, UserDto> {
 
             UserDto userDto = new UserDto();
 
+            userDto.setId(userEntity.getId());
+            
             userDto.setFullname(userEntity.getFullname());
 
             userDto.setEmail(userEntity.getEmail());
@@ -46,19 +48,40 @@ public enum UserToUserDto implements Function<User, UserDto> {
 
     }
 
+    public User UserToUserDto(UserDto userDto) {
+
+        if (userDto != null) {
+
+            User userEntity = new User();
+
+            userEntity.setId(userDto.getId());
+
+            userEntity.setFullname(userDto.getFullname());
+
+            userEntity.setEmail(userDto.getEmail());
+
+            userEntity.setPassword(userDto.getPassword());
+
+            return userEntity;
+
+        }
+
+        return null;
+
+    }
+
     public Page<UserDto> ListUserToListUserDto(Page<User> users) {
 
         if (users != null) {
             List<UserDto> userDtos = users.getContent()
                     .stream()
-                    .map(user -> new UserDto(user.getFullname(),user.getEmail(),
+                    .map(user -> new UserDto(user.getFullname(), user.getEmail(),
                             user.getAuthorities().stream()
                                     .map(role -> new RoleDto(null, role.getAuthority(), null))
                                     .collect(Collectors.toList())))
                     .collect(Collectors.toList());
 
-
-                    System.out.println("============userDtos================>" + userDtos.toString());
+            System.out.println("============userDtos================>" + userDtos.toString());
 
             return new PageImpl<>(userDtos, users.getPageable(), users.getTotalElements());
         }

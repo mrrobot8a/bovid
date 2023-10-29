@@ -1,5 +1,6 @@
 package com.alcadia.bovid.Exception;
 
+
 public class MsgErrorResponser {
     private String message;
     private int status;

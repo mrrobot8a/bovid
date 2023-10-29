@@ -31,7 +31,7 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
     public String validatePasswordResetToken(String passwordResetToken) {
 
         PasswordResetToken passwordToken = passwordResetTokenRepository.findByToken(passwordResetToken);
-
+        System.out.println("===============================" + passwordResetToken);
         if (passwordToken == null) {
             return "Invalid verification token";
         }
@@ -49,10 +49,9 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
         return "valid";
     }
 
-
     /**
      * @param passworResetToken
-     * @apiNote 
+     * @apiNote
      * 
      */
 
@@ -63,7 +62,7 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
 
     /**
      * @param token
-     * @apiNote 
+     * @apiNote
      */
 
     public PasswordResetToken findPasswordResetToken(String token) {

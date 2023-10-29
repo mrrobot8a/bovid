@@ -48,7 +48,7 @@ public class SupportDocumentController {
         Resource resource = supportDocumentsService.download(fileName);
 
         if (resource == null) {
-            response.put("URL", resource);
+            response.put("objct", resource);
             response.put("clase", "error desde al descargar el arcchivo");
             response.put("mensaje", "Error al realizar la insersion en la base de datos");
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -56,6 +56,7 @@ public class SupportDocumentController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .header("Content-type", "application/octet-stream")
                 .body(resource);
 
     }
@@ -66,14 +67,14 @@ public class SupportDocumentController {
         try {
 
             // Verifica si el nombre del archivo termina con ".pdf"
-            if (!fileName.toLowerCase().endsWith(".pdf")) {
-                throw new InvalidPdfRequestException("El archivo solicitado no es un PDF válido.");
+            if (!fileName.toLowerCase().endsWith(".pdf")|| !fileName.toLowerCase().endsWith(".jpeg")) {
+                throw new InvalidPdfRequestException("El archivo solicitado no es válido.");
             }
 
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
             byte[] pdfContenido = supportDocumentsService.download(fileName).getInputStream().readAllBytes();
-
+              
             if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_PDF);

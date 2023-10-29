@@ -5,7 +5,7 @@ package com.alcadia.bovid.Exception;
  */
 
 public class InvalidVerificationTokenException extends RuntimeException {
-    public InvalidVerificationTokenException(String message) {
+    public InvalidVerificationTokenException(String message, Throwable cause) {
         super(message);
     }
 }

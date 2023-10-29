@@ -48,13 +48,16 @@ public class UserController {
             response.put("totalItems", userPage.getTotalElements());
             response.put("totalPages", userPage.getTotalPages());
 
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (Exception e) {
             // Maneja la excepción aquí si ocurre algún error, como un error en la base de
             // datos
             response.put("error", "Error al obtener User: " + e.getMessage());
+              return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+      
     }
 
     @PutMapping("/update-user")

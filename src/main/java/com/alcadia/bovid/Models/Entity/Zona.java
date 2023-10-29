@@ -11,12 +11,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Builder
 public class Zona {
 
     @Id
@@ -29,5 +35,11 @@ public class Zona {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
+
+
+    // @OneToOne(cascade = CascadeType.PERSIST)
+    // @JoinColumn(name = "ubicacion_id", referencedColumnName = "id")
+    // private Ubicacion ubicacion;
+
 
 }

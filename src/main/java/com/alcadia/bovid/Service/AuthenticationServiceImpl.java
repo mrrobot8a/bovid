@@ -1,25 +1,20 @@
 package com.alcadia.bovid.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.alcadia.bovid.Component.InfoRequestClientComponet;
 import com.alcadia.bovid.Exception.CustomerNotExistException;
 import com.alcadia.bovid.Exception.PasswordIncorrectException;
 import com.alcadia.bovid.Models.Dto.RegistrationRequest;
-import com.alcadia.bovid.Models.Dto.UserDto;
-import com.alcadia.bovid.Models.Entity.HisotiralAuditor;
+
 import com.alcadia.bovid.Models.Entity.User;
 import com.alcadia.bovid.Repository.Dao.IUserRepository;
 import com.alcadia.bovid.Security.JwtAuthenticationProvider;
-import com.alcadia.bovid.Service.Mappers.UserToUserDto;
+import com.alcadia.bovid.Service.Mappers.UserMapper;
 import com.alcadia.bovid.Service.UserCase.IAuthenticationService;
 import com.alcadia.bovid.Service.UserCase.IHistorialAuditoriaService;
-import com.auth0.jwt.interfaces.Claim;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -44,10 +39,25 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     private final IHistorialAuditoriaService historialAuditoriaService;
 
+    @Autowired
+    private InfoRequestClientComponet getInfoClientComponet;
+
+
     @Override
-    public String signIn(RegistrationRequest userRegistrationRequest, HttpServletRequest servletRequest)
+    public String signIn(RegistrationRequest userRegistrationRequest, HttpServletRequest request)
             throws CustomerNotExistException {
 
+              
+            // Obtiene el método HTTP y la URL
+            String httpMethod = request.getMethod();
+            String url = request.getRequestURL().toString();
+            String ipclient = getInfoClientComponet.getClientIp(request);
+            String path = request.getServletPath();
+            String actionUser = "signIn";
+            String jwt = request.getHeader("Authorization");
+
+
+             
         // buscamos el usuario por email
         User userEntity = userRepository.findByEmail(userRegistrationRequest.email())
                 .orElseThrow(() -> new CustomerNotExistException("El usuario ingresado no existe."));
@@ -69,9 +79,10 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         // System.out.println("===================DTO================================="
         // + userDTO.getAuthorities());
 
-        String token = jwtAuthenticationProvider.createToken(UserToUserDto.INSTANCE.apply(userEntity));
+        String token = jwtAuthenticationProvider.createToken(UserMapper.INSTANCE.apply(userEntity));
 
-        historialAuditoriaService.registerHistorial(servletRequest, userEntity);
+        historialAuditoriaService.registerHistorial(actionUser, ipclient, httpMethod, url, userRegistrationRequest.email());
+
 
         return token;
     }
@@ -79,15 +90,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Override
     public String signOut(String jwt) {
 
-        String[] authElements = jwt.split(" ");
-        String email = jwtAuthenticationProvider.deleteToken(authElements[1]);
-        User user = userRepository.findByEmail(email).get();
+        try {
+            String[] authElements = jwt.split(" ");
 
-        boolean isOK = historialAuditoriaService.logout(user.getId(), null);
-        if (isOK) {
-            return "Sesión cerrada exitosamente";
+            String isOK = jwtAuthenticationProvider.deleteToken(authElements[1]);
+
+            return isOK;
+
+        } catch (Exception e) {
+            System.out.println(
+                    "error al cerrar sesion" + e.getMessage());
+            return "No se pudo cerrar la sesión";
         }
-        return null;
+
     }
 
 }

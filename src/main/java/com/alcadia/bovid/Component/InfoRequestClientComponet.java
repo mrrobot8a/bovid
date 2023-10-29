@@ -1,26 +1,19 @@
-package com.alcadia.bovid.Service;
+package com.alcadia.bovid.Component;
 
-import org.springframework.stereotype.Service;
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import com.alcadia.bovid.Service.UserCase.IRequestService;
+import org.springframework.stereotype.Component;
 
 import io.micrometer.common.util.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
-@Service
-public class RequestServiceImpl implements IRequestService {
+@Component
+public class InfoRequestClientComponet {
 
     private final String LOCALHOST_IPV4 = "127.0.0.1";
     private final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
 
-    @Override
     public String getClientIp(HttpServletRequest request) {
 
         String ipv4Address = request.getHeader("X-Forwarded-For");
@@ -55,6 +48,20 @@ public class RequestServiceImpl implements IRequestService {
         }
 
         return "IPV4: " + ipv4Address;
+    }
+
+    public String getHostClient(HttpServletRequest request) {
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+
+            if (StringUtils.isEmpty(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
     }
 
 }

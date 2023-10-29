@@ -1,11 +1,13 @@
 package com.alcadia.bovid.Configuration;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.alcadia.bovid.Security.JwtAuthFilter;
 import com.alcadia.bovid.Security.JwtAuthenticationProvider;
@@ -21,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 // @RequiredArgsConstructor
 @RequiredArgsConstructor
+@EnableAspectJAutoProxy
+@ComponentScan(basePackages = "com.alcadia.bovid.Component")
 @Configuration
 public class ApplicationConfig {
 
@@ -35,6 +39,12 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    // @Primary
+    // @Bean
+    // public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+    //     return new RequestMappingHandlerMapping();
+    // }
 
     @Bean
     public ObjectMapper getObjectMapper() {

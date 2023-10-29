@@ -1,23 +1,26 @@
 package com.alcadia.bovid.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.alcadia.bovid.Event.Listener.RegistrationCompleteEventListener;
 import com.alcadia.bovid.Exception.CustomerNotExistException;
 import com.alcadia.bovid.Exception.RoleNoExistsException;
 import com.alcadia.bovid.Exception.UserAlreadyExistsException;
@@ -29,15 +32,13 @@ import com.alcadia.bovid.Models.Entity.Funcionario;
 import com.alcadia.bovid.Models.Entity.Role;
 import com.alcadia.bovid.Models.Entity.User;
 import com.alcadia.bovid.Repository.Dao.IFuncionarioRepository;
-import com.alcadia.bovid.Repository.Dao.IHistorialAuditoriaRepository;
 import com.alcadia.bovid.Repository.Dao.IRoleRepository;
 import com.alcadia.bovid.Repository.Dao.IUserRepository;
-import com.alcadia.bovid.Service.Mappers.RoleToRoleDto;
 import com.alcadia.bovid.Service.Mappers.UserToRegistrationResponse;
-import com.alcadia.bovid.Service.Mappers.UserToUserDto;
+import com.alcadia.bovid.Service.Mappers.UserMapper;
 import com.alcadia.bovid.Service.UserCase.IUserService;
 
-import jakarta.transaction.Transactional;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,12 +48,16 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements IUserService {
 
     private final IUserRepository userRepository;
+
     private final IRoleRepository roleRepository;
-    private final IHistorialAuditoriaRepository historialAuditoriaRepository;
+
     private final IFuncionarioRepository funcionarioRepository;
 
     private final PasswordEncoder passwordEncoder;
+
     private final PasswordResetTokenServiceImple passwordResetTokenService;
+
+    private final RegistrationCompleteEventListener eventListener;
 
     @Transactional
     @Override
@@ -61,8 +66,8 @@ public class UserServiceImpl implements IUserService {
             User user = userRepository.findByEmail(userDto.getEmail()).orElseThrow(
                     () -> new RoleNoExistsException("Usuario no encontrado"));
 
-            // Eliminar registros relacionados en la tabla de historial
-            historialAuditoriaRepository.deleteByUsersId(user.getId());
+            // // Eliminar registros relacionados en la tabla de historial
+            // historialAuditoriaRepository.deleteByUsersId(user.getId());
 
             user.deleteUsersFromRoles();
 
@@ -104,7 +109,7 @@ public class UserServiceImpl implements IUserService {
 
             user = userRepository.save(user);
 
-            return UserToUserDto.INSTANCE.apply(user);
+            return UserMapper.INSTANCE.apply(user);
 
         } catch (DataAccessException e) {
             Map<String, Object> response = new HashMap<>();
@@ -163,7 +168,7 @@ public class UserServiceImpl implements IUserService {
                 throw new CustomerNotExistException("No hay usuarios registrados");
             }
 
-            return UserToUserDto.INSTANCE.ListUserToListUserDto(users);
+            return UserMapper.INSTANCE.ListUserToListUserDto(users);
 
         } catch (DataAccessException e) {
 
@@ -179,8 +184,9 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    @Transactional
-    public RegistrationResponse registerUser(RegistrationRequest registerUserRequest) {
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, rollbackFor = Exception.class)
+    public RegistrationResponse registerUser(RegistrationRequest registerUserRequest)
+            throws UnsupportedEncodingException, MessagingException {
 
         try {
 
@@ -196,6 +202,11 @@ public class UserServiceImpl implements IUserService {
                     .orElseThrow(
                             () -> new RoleNoExistsException(
                                     "El role asiganddo al usuario no existe en la base de datos"));
+
+            // Se envia el correo al usuario con las credenciales
+            if (!eventListener.sendCredencial(registerUserRequest)) {
+              log.info("mail no enviado");
+            }
 
             String encodedPassword = encodePassword(registerUserRequest.password());
 
@@ -244,9 +255,19 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    @Transactional
+    public User findByEmail(String email) {
 
-        return userRepository.findByEmail(email);
+        try {
+
+            User user = userRepository.findByEmail(email).orElseThrow(
+                    () -> new CustomerNotExistException(
+                            "El usuario ingresado no existe." + "trace: class UserServiceImpl, method findByEmail"));
+
+            return user;
+        } catch (DataAccessException ex) {
+            return null;
+        }
 
     }
 

@@ -1,16 +1,16 @@
 package com.alcadia.bovid.Service.Util;
 
-import org.springframework.beans.factory.annotation.Value;
+
 
 public class Utils {
 
-    @Value("${ftp.server}")
-    private static String IpServerFtp;
 
     public final static String UPLOADS_FOLDER = "C:\\temp\\uploads";
 
-    public final static String NAME_FOLDER = "uploads/";
+    public final static String NAME_FOLDER_SUPPORTDOCUMENTS = "supportDocuments/";
 
-    public final static String URL_BASE = "ftp://" + "192.168.0.20" + "/uploads/";
+    public final static String NAME_FOLDER_IMAGES_MARCA_GANADERA = "images/";
+
+    public final static String URL_BASE = "http://localhost:8000/admin/support-document/ver-pdf/";
 
 }

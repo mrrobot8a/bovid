@@ -1,7 +1,8 @@
 package com.alcadia.bovid.Service.UserCase;
 
 
-import java.util.Optional;
+import java.io.UnsupportedEncodingException;
+
 
 import org.springframework.data.domain.Page;
 
@@ -10,17 +11,19 @@ import com.alcadia.bovid.Models.Dto.RegistrationResponse;
 import com.alcadia.bovid.Models.Dto.UserDto;
 import com.alcadia.bovid.Models.Entity.User;
 
+import jakarta.mail.MessagingException;
+
 public interface IUserService {
 
     Page<UserDto> getAllUsers(int page, int size);
 
-    RegistrationResponse registerUser(RegistrationRequest request);
+    RegistrationResponse registerUser(RegistrationRequest request) throws UnsupportedEncodingException, MessagingException;
 
     UserDto updateUser(UserDto userDto);
 
     void  deleteUser(UserDto userDto);
 
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
 
     void saveUserVerificationToken(User theUser, String verificationToken);
 

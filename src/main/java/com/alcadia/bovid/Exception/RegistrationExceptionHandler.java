@@ -1,13 +1,19 @@
 package com.alcadia.bovid.Exception;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.net.http.HttpHeaders;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +62,14 @@ public class RegistrationExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MailSendException.class)
+    public Map<String, String> MessagingException(MailSendException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
+
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public Map<String, String> UnauthorizedException(UnauthorizedException ex) {
@@ -67,6 +81,14 @@ public class RegistrationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomerNotExistException.class)
     public Map<String, String> CustomerNotExistException(CustomerNotExistException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(handleEmailSendingFailure.class)
+    public Map<String, String> handleEmailSendingFailure(handleEmailSendingFailure ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
         return error;
@@ -89,5 +111,17 @@ public class RegistrationExceptionHandler {
         error.put("message", ex.getMessage());
         return error;
     }
+
+    // @ExceptionHandler(JWTVerificationException.class)
+    // public ResponseEntity<Object>
+    // handleJWTVerificationException(JWTVerificationException ex) {
+    // return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    // }
+
+    // @ExceptionHandler(TokenExpiredException.class)
+    // public ResponseEntity<Object>
+    // handleTokenExpiredException(TokenExpiredException ex) {
+    // return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    // }
 
 }

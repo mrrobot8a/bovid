@@ -7,6 +7,6 @@ import com.alcadia.bovid.Models.Dto.GanderoDto;
 public interface IGanaderoService {
 
 
-    Boolean SaveGanadero(MultipartFile file, GanderoDto ganderoDto);
+    Boolean SaveGanadero(MultipartFile file, GanderoDto ganderoDto, MultipartFile imageMarcaGana);
     
 }

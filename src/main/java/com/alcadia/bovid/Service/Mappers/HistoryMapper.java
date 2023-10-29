@@ -19,8 +19,8 @@ public enum HistoryMapper implements Function<HisotiralAuditor, HistoryAuditordD
         if (historial != null) {
             List<HistoryAuditordDto> historialDto = historial.getContent().stream()
                     .map(historyEntity -> new HistoryAuditordDto(historyEntity.getIpComputer(),
-                            historyEntity.getFechaIncio(), historyEntity.getLogoutDate(),
-                            UserToUserDto.INSTANCE.apply(historyEntity.getUsers())))
+                            historyEntity.getSingInDate(), historyEntity.getLogoutDate(),
+                            UserMapper.INSTANCE.apply(historyEntity.getUsers())))
                     .collect(Collectors.toList());
 
             return new PageImpl<>(historialDto, historial.getPageable(), historial.getTotalElements());
