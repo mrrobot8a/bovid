@@ -12,16 +12,18 @@ pipeline {
                 sh 'echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/environment'
             }
         }
-        stage('Instalar MySQL 8.0.33') {
+        stage('Instalar MySQL 8.0.33 y Crear Base de Datos') {
             steps {
-                sh 'apt update'
-                sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
-            }
-        }
-        stage('Iniciar MySQL y Crear la Base de Datos') {
-            steps {
-                sh 'service mysql start'
-                sh 'mysql -e "CREATE DATABASE db_marcaganaderaTest;"'
+                script {
+                    sh 'wget https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb'
+                    sh 'sudo dpkg -i mysql-apt-config_0.8.15-1_all.deb'
+                    sh 'echo "mysql-server mysql-server/root_password password root" | sudo debconf-set-selections'
+                    sh 'echo "mysql-server mysql-server/root_password_again password root" | sudo debconf-set-selections'
+                    sh 'sudo apt update'
+                    sh 'sudo apt install mysql-server=8.0.33-1ubuntu18.04 -y'
+                    sh 'sudo service mysql start'
+                    sh 'mysql -u root -proot -e "CREATE DATABASE db_marcaganaderaTest;"'
+                }
             }
         }
         stage('Instalar Maven') {
