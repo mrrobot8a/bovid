@@ -25,7 +25,7 @@ pipeline {
                 git  'https://github.com/mrrobot8a/bovid.git'
             }
         }
-        
+
         stage('Instalar Maven') {
             steps {
                 script {
@@ -33,7 +33,8 @@ pipeline {
                     if (mavenInstalled != 0) {
                         echo 'Maven no está instalado. Se procederá a la instalación.'
                         // Instala Maven en el servidor (ajusta el comando según tu sistema)
-                        sh 'sudo apt-get update && sudo apt-get install maven -y'
+                        sh 'sudo apt-get update '
+                        sh 'sudo apt-get install maven -y'
                     } else {
                         echo 'Maven ya está instalado en el servidor.'
                     }
