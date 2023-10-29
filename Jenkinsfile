@@ -4,6 +4,7 @@ pipeline {
     stages {
 
         stage('Verificar e instalar Git') {
+            
             steps {
                 script {
                     def gitInstalled = sh(script: 'git --version', returnStatus: true)
