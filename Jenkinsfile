@@ -1,63 +1,27 @@
 pipeline {
     agent any
 
+    environment {
+        GIT_REPO_URL = 'https://github.com/mrrobot8a/bovid.git'
+        TARGET_FOLDER = '/home/ubuntu/java'
+    }
+
     stages {
-
-        stage('Verificar e instalar Git') {
-
-            steps {
-                script {
-                    def gitInstalled = sh(script: 'git --version', returnStatus: true)
-                    if (gitInstalled != 0) {
-                        echo 'Git no está instalado. Se procederá a la instalación.'
-                        // Instala Git en el servidor
-                        sh 'sudo apt-get update && sudo apt-get install git -y'
-                    } else {
-                        echo 'Git ya está instalado en el servidor.'
-                    }
-                }
-            }
-        }
-
         stage('Clonar código fuente') {
             steps {
-                // Clona el repositorio de Git
-                git 'https://github.com/mrrobot8a/bovid.git'
-            }
-        }
-        
-        stage('Instalar Maven') {
-            steps {
-                script {
-                    def mavenInstalled = sh(script: 'mvn --version', returnStatus: true)
-                    if (mavenInstalled != 0) {
-                        echo 'Maven no está instalado. Se procederá a la instalación.'
-                        // Instala Maven en el servidor
-                        sh 'sudo apt-get update && sudo apt-get install maven -y'
-                    } else {
-                        echo 'Maven ya está instalado en el servidor.'
-                    }
-                }
+                sh "git clone $GIT_REPO_URL $TARGET_FOLDER"
             }
         }
 
         stage('Construir') {
             steps {
-                sh 'chmod +x mvnw' // Da permisos de ejecución a Maven
-                sh 'mvn clean package' // Utiliza Maven para construir el proyecto
+                // Aquí puedes agregar pasos para compilar tu código si es necesario
             }
         }
-
+        
         stage('Desplegar en el servidor') {
-
             steps {
-
-                sh 'scp bovid-0.0.1-SNAPSHOT.jar ubuntu@172.203.81.195:/home/ubuntu/java' // Copia el archivo JAR al servidor
-
-                sshagent(['llave-ssh-azure']) {
-
-                    sh 'ssh ubuntu@172.203.81.195 "java -jar /home/ubuntu/java/bovid-0.0.1-SNAPSHOT.jar"' // Inicia la aplicación en el servidor
-                }
+                // Aquí puedes agregar pasos para desplegar tu aplicación en el servidor
             }
         }
     }
