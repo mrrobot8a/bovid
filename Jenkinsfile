@@ -15,15 +15,18 @@ pipeline {
 
         stage('Construir') {
             steps {
-                // Aquí puedes agregar pasos para compilar tu código si es necesario
-                sh 'echo "Compilando..."'
+                // Agrega pasos de construcción específicos para tu proyecto, por ejemplo, si es un proyecto Maven:
+                sh "cd $TARGET_FOLDER" // Cambia al directorio del proyecto
+                sh './mvnw clean package' // Utiliza Maven para construir el proyecto
             }
         }
         
         stage('Desplegar en el servidor') {
             steps {
-                // Aquí puedes agregar pasos para desplegar tu aplicación en el servidor
+                // Agrega pasos para copiar y desplegar tu aplicación en el servidor
+                sh "scp $TARGET_FOLDER/tu-aplicacion.jar ubuntu@172.203.81.195:/ruta/de/despliegue/"
+                sh 'ssh ubuntu@172.203.81.195 "java -jar /ruta/de/despliegue/tu-aplicacion.jar"'
             }
         }
     }
-} 
+}
