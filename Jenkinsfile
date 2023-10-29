@@ -2,10 +2,26 @@ pipeline {
     agent any
 
     stages {
+
+        stage('Verificar e instalar Git') {
+            steps {
+                script {
+                    def gitInstalled = sh(script: 'git --version', returnStatus: true)
+                    if (gitInstalled != 0) {
+                        echo 'Git no está instalado. Se procederá a la instalación.'
+                        // Instala Git en el servidor (ajusta el comando según tu sistema)
+                        sh 'sudo apt-get update && sudo apt-get install git -y'
+                    } else {
+                        echo 'Git ya está instalado en el servidor.'
+                    }
+                }
+            }
+        }
+
         stage('Clonar código fuente') {
             steps {
                 // Clona el repositorio de Git
-                git clone 'https://github.com/mrrobot8a/bovid.git'
+                git  'https://github.com/mrrobot8a/bovid.git'
             }
         }
 
