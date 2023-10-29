@@ -21,6 +21,7 @@ pipeline {
                 git url: 'https://github.com/mrrobot8a/bovid.git'
             }
         }
+        
         stage('Construir y Desplegar') {
             steps {
                 sh 'mvn clean install'
