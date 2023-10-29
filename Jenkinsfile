@@ -12,6 +12,18 @@ pipeline {
                 sh 'echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/environment'
             }
         }
+        stage('Instalar MySQL 8.0.33') {
+            steps {
+                sh 'apt update'
+                sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
+            }
+        }
+        stage('Iniciar MySQL y Crear la Base de Datos') {
+            steps {
+                sh 'service mysql start'
+                sh 'mysql -e "CREATE DATABASE db_marcaganaderaTest;"'
+            }
+        }
         stage('Instalar Maven') {
             steps {
                 sh 'apt install maven -y'
