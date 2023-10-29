@@ -1,24 +1,17 @@
 pipeline {
     agent any
 
-    environment {
-        GIT_REPO_URL = 'https://github.com/mrrobot8a/bovid.git'
-        TARGET_FOLDER = '/home/ubuntu/java'
-    }
-
-    stages {
+       stages {
         stage('Clonar código fuente') {
             steps {
-                sh "git clone $GIT_REPO_URL $TARGET_FOLDER"
-                sh "ls -a"
-                sh "pwd"
+                sh 'echo "Clonando el código fuente"'
             }
         }
 
         stage('Construir') {
             steps {
                 // Aquí puedes agregar pasos para compilar tu código si es necesario
-                sh "ls -a"
+                sh 'echo "Clonando el código fuente"'
             }
         }
         
