@@ -10,7 +10,7 @@ pipeline {
                     def gitInstalled = sh(script: 'git --version', returnStatus: true)
                     if (gitInstalled != 0) {
                         echo 'Git no está instalado. Se procederá a la instalación.'
-                        // Instala Git en el servidor (ajusta el comando según tu sistema)
+                        // Instala Git en el servidor
                         sh 'sudo apt-get update && sudo apt-get install git -y'
                     } else {
                         echo 'Git ya está instalado en el servidor.'
@@ -22,7 +22,7 @@ pipeline {
         stage('Clonar código fuente') {
             steps {
                 // Clona el repositorio de Git
-                git  'https://github.com/mrrobot8a/bovid.git'
+                git 'https://github.com/mrrobot8a/bovid.git'
             }
         }
         
@@ -32,8 +32,8 @@ pipeline {
                     def mavenInstalled = sh(script: 'mvn --version', returnStatus: true)
                     if (mavenInstalled != 0) {
                         echo 'Maven no está instalado. Se procederá a la instalación.'
-                        // Instala Maven en el servidor (ajusta el comando según tu sistema)
-                        sh 'apt-get update &&  apt-get install maven -y'
+                        // Instala Maven en el servidor
+                        sh 'sudo apt-get update && sudo apt-get install maven -y'
                     } else {
                         echo 'Maven ya está instalado en el servidor.'
                     }
