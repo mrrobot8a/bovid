@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        // Definimos una variable de entorno para almacenar el nombre del archivo JAR
         JAR_FILE = ''
     }
     stages {
@@ -14,25 +15,46 @@ pipeline {
         stage('Importar clave pública de MySQL') {
             steps {
                 sh 'wget https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb'
-                sh 'dpkg -i mysql-apt-config_0.8.15-1_all.deb'
-                sh 'apt-key adv --keyserver keys.gnupg.net --recv-keys 467B942D3A79BD29'
-                sh 'apt update'
+                sh 'sudo dpkg -i mysql-apt-config_0.8.15-1_all.deb'
+                sh 'sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 467B942D3A79BD29'
+                sh 'sudo apt update'
             }
         }
-        stage('Instalar MySQL 8.0.33 y Crear Base de Datos') {
-            steps {
-                script {
-                    sh 'echo "mysql-server mysql-server/root_password password root" | debconf-set-selections'
-                    sh 'echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections'
-                    sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
-                    sh 'service mysql start'
+        
+stage('Instalar MySQL 8.0.33 y Crear Base de Datos') {
+    steps {
+        script {
+            // Instala wget
+            sh 'apt install wget -y'
 
-                    withCredentials([usernamePassword(credentialsId: 'mysql-credentials', passwordVariable: 'MYSQL_PASSWORD', usernameVariable: 'MYSQL_USERNAME')]) {
-                        sh "mysql -u ${MYSQL_USERNAME} -p${MYSQL_PASSWORD} -e 'CREATE DATABASE db_marcaganaderaTest;'"
-                    }
-                }
+            // Descarga el archivo de configuración del repositorio MySQL
+            sh 'curl -LO https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb'
+
+            // Instala mysql-apt-config
+            sh 'dpkg -i mysql-apt-config_0.8.15-1_all.deb'
+
+            // Configura las contraseñas de root (si es necesario)
+            sh 'echo "mysql-server mysql-server/root_password password root" | debconf-set-selections'
+            sh 'echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections'
+
+            // Actualiza e instala MySQL Server
+            sh 'apt update'
+            sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
+
+            // Inicia el servicio MySQL
+            sh 'service mysql start'
+
+            // Utiliza las credenciales para conectarte a MySQL
+            withCredentials([usernamePassword(credentialsId: 'mysql-credentials', passwordVariable: 'MYSQL_PASSWORD', usernameVariable: 'MYSQL_USERNAME')]) {
+                sh "mysql -u ${MYSQL_USERNAME} -p${MYSQL_PASSWORD} -e 'CREATE DATABASE db_marcaganaderaTest;'"
             }
         }
+    }
+}
+
+
+
+            
         stage('Instalar Maven') {
             steps {
                 sh 'apt install maven -y'
@@ -47,6 +69,7 @@ pipeline {
             steps {
                 sh 'mvn clean install'
                 script {
+                    // Usamos el comando find para buscar el archivo JAR generado y almacenar su nombre
                     JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true).trim()
                 }
                 sh "java -jar ${JAR_FILE}"
