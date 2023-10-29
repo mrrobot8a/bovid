@@ -5,7 +5,7 @@ pipeline {
         stage('Clonar código fuente') {
             steps {
                 // Clona el repositorio de Git
-                git clone 'https://tu-repositorio-git.com/tu-proyecto.git'
+                git clone 'https://github.com/mrrobot8a/bovid.git'
             }
         }
 
