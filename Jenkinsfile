@@ -16,12 +16,12 @@ pipeline {
             steps {
                 script {
                        sh 'curl -LO https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb'
-                       sh 'sudo dpkg -i mysql-apt-config_0.8.15-1_all.deb'
-                       sh 'echo "mysql-server mysql-server/root_password password root" | sudo debconf-set-selections'
-                       sh 'echo "mysql-server mysql-server/root_password_again password root" | sudo debconf-set-selections'
-                       sh 'sudo apt update'
-                                  sh 'sudo apt install mysql-server=8.0.33-1ubuntu18.04 -y'
-                       sh 'sudo service mysql start'
+                       sh 'dpkg -i mysql-apt-config_0.8.15-1_all.deb'
+                       sh 'echo "mysql-server mysql-server/root_password password root" | debconf-set-selections'
+                       sh 'echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections'
+                       sh 'apt update'
+                                  sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
+                       sh 'service mysql start'
 
                         // Utiliza las credenciales para conectarte a MySQL
                        withCredentials([usernamePassword(credentialsId: 'mysql-credentials', passwordVariable: 'MYSQL_PASSWORD', usernameVariable: 'MYSQL_USERNAME')]) {
