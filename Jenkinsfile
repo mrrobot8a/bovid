@@ -16,6 +16,7 @@ pipeline {
         stage('Construir') {
             steps {
                 // Aquí puedes agregar pasos para compilar tu código si es necesario
+                sh 'echo "Compilando..."'
             }
         }
         
@@ -25,4 +26,4 @@ pipeline {
             }
         }
     }
-}
+} 
