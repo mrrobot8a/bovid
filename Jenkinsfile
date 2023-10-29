@@ -44,7 +44,7 @@ pipeline {
         stage('Construir') {
             steps {
                 sh 'chmod +x mvnw' // Da permisos de ejecución a Maven
-                sh './mvnw clean package' // Utiliza Maven para construir el proyecto
+                sh 'mvn clean package' // Utiliza Maven para construir el proyecto
             }
         }
 
