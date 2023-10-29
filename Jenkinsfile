@@ -16,24 +16,24 @@ stage('Instalar MySQL 8.0.33 y Crear Base de Datos') {
     steps {
         script {
             // Instala wget
-            sh 'sudo apt install wget -y'
+            sh 'apt install wget -y'
 
             // Descarga el archivo de configuración del repositorio MySQL
             sh 'curl -LO https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb'
 
             // Instala mysql-apt-config
-            sh 'sudo dpkg -i mysql-apt-config_0.8.15-1_all.deb'
+            sh 'dpkg -i mysql-apt-config_0.8.15-1_all.deb'
 
             // Configura las contraseñas de root (si es necesario)
-            sh 'echo "mysql-server mysql-server/root_password password root" | sudo debconf-set-selections'
-            sh 'echo "mysql-server mysql-server/root_password_again password root" | sudo debconf-set-selections'
+            sh 'echo "mysql-server mysql-server/root_password password root" | debconf-set-selections'
+            sh 'echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections'
 
             // Actualiza e instala MySQL Server
-            sh 'sudo apt update'
-            sh 'sudo apt install mysql-server=8.0.33-1ubuntu18.04 -y'
+            sh 'apt update'
+            sh 'apt install mysql-server=8.0.33-1ubuntu18.04 -y'
 
             // Inicia el servicio MySQL
-            sh 'sudo service mysql start'
+            sh 'service mysql start'
 
             // Utiliza las credenciales para conectarte a MySQL
             withCredentials([usernamePassword(credentialsId: 'mysql-credentials', passwordVariable: 'MYSQL_PASSWORD', usernameVariable: 'MYSQL_USERNAME')]) {
