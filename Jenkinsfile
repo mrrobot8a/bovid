@@ -5,6 +5,9 @@ pipeline {
             steps {
                 sh 'apt update'
                 sh 'apt install openjdk-17-jre -y'
+                sh 'echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/environment'
+                sh 'source /etc/environment'
+                sh 'echo pwd'
             }
         }
         stage('Instalar Maven') {
