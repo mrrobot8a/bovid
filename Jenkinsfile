@@ -31,7 +31,7 @@ pipeline {
 
         stage('Construir y Desplegar') {
             steps {
-                sh 'mvn clean install'
+                sh 'mvn clean package'
                 script {
                     JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true).trim()
                 }
