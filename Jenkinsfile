@@ -11,13 +11,6 @@ pipeline {
                 sh 'echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/environment'
             }
         }
-        stage('Instalar mysql') {
-            steps {
-                sh 'apt install mysql-server -y'
-                sh 'systemctl start mysql.service'                         
-            }
-        }
-
         stage('Instalar Maven') {
             steps {
                 sh 'apt install maven -y'
@@ -28,7 +21,6 @@ pipeline {
                 git url: 'https://github.com/mrrobot8a/bovid.git'
             }
         }
-
         stage('Construir y Desplegar') {
             steps {
                 sh 'mvn clean package'
