@@ -14,11 +14,7 @@ pipeline {
         stage('Instalar mysql') {
             steps {
                 sh 'apt install mysql-server -y'
-                sh 'mysql_secure_installation'
-                sh 'mysql -u root -e "CREATE DATABASE db_marcaganaderaTest;"'
-                sh 'mysql -u root -e "CREATE USER \'root\'@\'localhost\' IDENTIFIED BY \'sasa\';"'
-                sh 'mysql -u root -e "GRANT ALL PRIVILEGES ON root.* TO \'bovid\'@\'localhost\';"'
-                sh 'mysql -u root -e "FLUSH PRIVILEGES;"'
+                sh 'systemctl start mysql.service'                         
             }
         }
 
