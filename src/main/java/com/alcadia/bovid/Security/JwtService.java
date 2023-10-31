@@ -32,7 +32,6 @@ public class JwtService {
      * @param customerJwt Cliente a utilizar en la creacion del jwt
      * @return Jwt creado
      */
-
     public String createToken(UserDto customerJwt) {
 
         Date now = new Date();

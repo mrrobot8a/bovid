@@ -21,20 +21,6 @@ pipeline {
                 sh 'apt install maven -y'
             }
         }
-        stage('Instalar MySQL') {
-            steps {
-                sh 'wget https://dev.mysql.com/get/mysql-apt-config_0.8.17-1_all.deb'
-                sh 'sudo dpkg -i mysql-apt-config_0.8.17-1_all.deb'
-                sh 'sudo apt update'
-                sh 'sudo apt install mysql-server'
-                sh 'sudo systemctl status mysql'
-            }
-        }
-        stage('Configurar MySQL') {
-            steps {
-                sh 'mysql -u root -e "CREATE DATABASE db_marcaganaderaTest;"'
-            }
-        }
         stage('Clonar Repositorio') {
             steps {
                 git url: 'https://github.com/mrrobot8a/bovid.git'  // Reemplaza con la URL de tu repositorio
