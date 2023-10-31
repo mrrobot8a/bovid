@@ -24,7 +24,7 @@ pipeline {
         stage('Verificar Maven') {
             steps {
                 script {
-                    def mavenVersion = sh(script: 'mvn -v', returnStatus: true, returnStdout: true).trim()
+                    def mavenVersion = sh(script: 'mvn -v', returnStatus: true, returnStdout: true)
                     if (mavenVersion.startsWith('Apache Maven')) {
                         echo "Maven está instalado."
                     } else {
