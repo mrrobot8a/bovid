@@ -4,33 +4,31 @@ pipeline {
         JAR_FILE = ''
         MYSQL_HOST = 'localhost'
         MYSQL_PORT = '3306'
-        MYSQL_DB = 'mydb'
+        MYSQL_DB = 'db_marcaganaderaTest'
         MYSQL_USER = 'root'
         MYSQL_PASSWORD = 'sasa'
     }
     stages {
-        stage('Verificar Java') {
+        stage('Instalar Java 17') {
             steps {
-                script {
-                    def javaVersion = sh(script: 'java -version', returnStatus: true, returnStdout: true).toString().trim()
-                    if (javaVersion.startsWith('openjdk version "17')) {
-                        echo "Java 17 está instalado."
-                    } else {
-                        error "Java 17 no está instalado. Por favor, instálalo antes de continuar."
-                    }
-                }
+                sh 'apt update'
+                sh 'apt install openjdk-17-jre -y'
+                sh 'echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/environment'
             }
         }
-        stage('Verificar Maven') {
+        stage('Instalar Maven') {
             steps {
-                script {
-                    def mavenVersion = sh(script: 'mvn -v', returnStatus: true, returnStdout: true).toString().trim()
-                    if (mavenVersion.startsWith('Apache Maven')) {
-                        echo "Maven está instalado."
-                    } else {
-                        error "Maven no está instalado. Por favor, instálalo antes de continuar."
-                    }
-                }
+                sh 'apt install maven -y'
+            }
+        }
+        stage('Instalar MySQL') {
+            steps {
+                sh 'apt install mysql-server -y'
+            }
+        }
+        stage('Configurar MySQL') {
+            steps {
+                sh 'mysql -u root -p -e "CREATE DATABASE db_marcaganaderaTest;"'
             }
         }
         stage('Clonar Repositorio') {
@@ -40,13 +38,12 @@ pipeline {
         }
         stage('Construir y Desplegar') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean install'
                 script {
-                    JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true).toString().trim()
+                    JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true).trim()
                 }
                 sh "java -jar ${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD}"
             }
         }
     }
 }
-
