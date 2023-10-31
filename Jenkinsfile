@@ -35,7 +35,7 @@ pipeline {
         }
         stage('Clonar Repositorio') {
             steps {
-                git url: 'https://github.com/tu-usuario/tu-repo.git'  // Reemplaza con la URL de tu repositorio
+                git url: 'https://github.com/mrrobot8a/bovid.git'  // Reemplaza con la URL de tu repositorio
             }
         }
         stage('Construir y Desplegar') {
