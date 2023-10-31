@@ -3,6 +3,7 @@ pipeline {
     environment {
         JAR_FILE = ''
     }
+    stages {
         stage('Clonar Repositorio') {
             steps {
                 git url: 'https://github.com/mrrobot8a/bovid.git'
@@ -16,5 +17,6 @@ pipeline {
                 }
                 sh "java -jar ${JAR_FILE}"
             }
-        }    
+        }
+    }
 }
