@@ -1,6 +1,7 @@
 #puerto de la aplicacion 
 server:
   port: 8000
+  address: 0.0.0.0
 
 # Configuración de la base de datos MySQL
 spring:
