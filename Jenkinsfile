@@ -97,7 +97,7 @@ pipeline {
                 }
 
                 echo "Jar file found: ${JAR_FILE}"
-                sh "nohup java -jar ${PROJECT_DIRECTORY}/${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD} > /dev/null 2>&1 &"
+                sh "java -jar ${PROJECT_DIRECTORY}/${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD}"
 
                 } catch (Exception e) {
                 echo "Ocurrió un error en la etapa de despliegue: ${e}"
