@@ -70,7 +70,12 @@ pipeline {
                 script {
                    sh 'whoami'
                    sh 'pwd'
-                   sh 'mvn clean install'
+                //   sh 'mvn clean install'
+                   // Define the path to your Maven 3.9.3 installation
+                    def mavenHome = '/var/lib/jenkins/sdkmaven/apache-maven-3.9.3'
+
+                    // Use the specified Maven version
+                    sh "${mavenHome}/bin/mvn clean package"
                 }   
             }
                  
@@ -81,14 +86,35 @@ pipeline {
             steps {
                 
                 script {
-                    JAR_FILE = sh(script: 'find /home/ubuntu/projectbovid/target -type f -name "*.jar" | head -1', returnStatus: true)
-                    echo JAR_FILE
-                    if (JAR_FILE == 0) {
-                        echo "Archivo JAR no encontrado. Verifica la construcción."
-                    }
-                     sh "java -jar ${PROJECT_DIRECTOR}/${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD}"
+                    
+                 try {
+                // Use the find command to locate the .jar file in the target directory
+                JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true ).trim()
+                echo "JAR file found: ${JAR_FILE}"
+
+                if (JAR_FILE == null) {
+                    error "Archivo JAR no encontrado en la carpeta 'target'. Verifica la construcción."
+                }
+
+                echo "Jar file found: ${JAR_FILE}"
+                sh "nohup java -jar ${PROJECT_DIRECTORY}/${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD} > /dev/null 2>&1 &"
+
+                } catch (Exception e) {
+                echo "Ocurrió un error en la etapa de despliegue: ${e}"
+                currentBuild.result = 'FAILURE' // Marcar el pipeline como fallido
+            }
+            
                 }
             }
+        }
+        
+        stage('notificar') {
+            
+             steps {
+                  
+                   echo "JAR file found:"
+             }
+            
         }
             
                     
