@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    stage('Preparar carpetas') {
+        steps {
+            sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
+        }
+    }
     environment {
         JAR_FILE = ''
         MYSQL_HOST = 'localhost'
@@ -16,7 +21,7 @@ pipeline {
             steps {
                 script {
                     def javaVersion = sh(script: 'java -version', returnStatus: true)
-                    sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
+                   
                      
                         if (javaVersion != 0) {
                          echo "Java no está instalado. Instalando Java..."
