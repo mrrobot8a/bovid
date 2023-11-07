@@ -2,8 +2,12 @@ pipeline {
     agent any
     
     stages {
+
         stage('Preparar carpetas') {
-            sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
+            steps {
+               sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
+            }
+            
         }
     }
 
