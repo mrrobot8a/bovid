@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.csrf(csrf -> csrf.disable())
-                .cors(withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .exceptionHandling(t -> t.accessDeniedHandler(accessDeniedHandlerException))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
