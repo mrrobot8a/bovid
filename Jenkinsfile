@@ -1,10 +1,12 @@
 pipeline {
     agent any
-    stage('Preparar carpetas') {
-        steps {
+    
+    stages {
+        stage('Preparar carpetas') {
             sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
         }
     }
+
     environment {
         JAR_FILE = ''
         MYSQL_HOST = 'localhost'
