@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -55,10 +54,10 @@ public class LoginController {
             RegistrationResponse userResponse = userService.registerUser(userRequest);
             // poner el envio de correo en el service del usuario
             // if (!eventListener.sendCredencial(userRequest)) {
-            //     userService.deleteUser(userRequest);
-            //     response.put("error", "error desde el envio de correo");
-            //     response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
-            //     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            // userService.deleteUser(userRequest);
+            // response.put("error", "error desde el envio de correo");
+            // response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
+            // return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
             // }
             response.put("usuario", userResponse);
@@ -72,22 +71,37 @@ public class LoginController {
             response.put("error", "Error al registrar usuario: " + e.getMessage());
             response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
             response.put("trac", e.getStackTrace() + "\n" + e.getCause());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
     }
-    
-    
+
     @PostMapping(path = "/sign-out")
-    public ResponseEntity<String> signOut(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwt) {
+    public ResponseEntity<?> signOut(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(AuthUseService.signOut(jwt));
     }
 
     @PostMapping(path = "/sign-in")
-    public ResponseEntity<String> signIn(@RequestBody RegistrationRequest authCustomerDto,
+    public ResponseEntity<Map<String, Object>> signIn(@RequestBody RegistrationRequest authCustomerDto,
             final HttpServletRequest servletRequest) {
-        System.out.println("signIn====================auth======="+authCustomerDto);
-        return ResponseEntity.ok(AuthUseService.signIn(authCustomerDto, servletRequest));
+        Map<String, Object> response = new HashMap<>();
+
+        System.out.println("signIn====================auth=======" + authCustomerDto);
+        try {
+            String jwt = AuthUseService.signIn(authCustomerDto, servletRequest);
+            response.put("jwt", jwt);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // TODO: handle exception
+
+            response.put("error", "Error al registrar usuario: " + e.getMessage());
+            response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
+
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+
+        }
+
     }
 
     /**
@@ -101,7 +115,7 @@ public class LoginController {
     public String resetPasswordRequest(@RequestBody PasswordRequestUtil passwordRequestUtil,
             final HttpServletRequest servletRequest)
             throws MessagingException, UnsupportedEncodingException {
-         System.out.println("passwordRequestUtil====================auth======="+passwordRequestUtil);
+        System.out.println("passwordRequestUtil====================auth=======" + passwordRequestUtil);
         User user = userService.findByEmail(passwordRequestUtil.getEmail());
 
         String passwordResetUrl = "";
@@ -155,7 +169,6 @@ public class LoginController {
         return "Invalid password reset token";
     }
 
-   
     /**
      * @param user
      * @param applicationUrl
