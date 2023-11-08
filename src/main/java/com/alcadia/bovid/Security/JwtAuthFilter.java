@@ -52,6 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         System.out.println("en esta peticion se rompe");
         System.out.println(request.getRequestURI());
+        System.out.println(request.getRequestURL());
         System.out.println(!request.getRequestURI().equals("/auth/sign-out"));
 
         if ("/auth/sign-out".equals(request.getRequestURI())) {
