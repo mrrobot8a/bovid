@@ -87,13 +87,14 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         System.out.println("signIn====================auth=======" + authCustomerDto);
+
         try {
             String jwt = AuthUseService.signIn(authCustomerDto, servletRequest);
             response.put("jwt", jwt);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
         } catch (Exception e) {
-            // TODO: handle exception
+           
 
             response.put("error", "Error al registrar usuario: " + e.getMessage());
             response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");

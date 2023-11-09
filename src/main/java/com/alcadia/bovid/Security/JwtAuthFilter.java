@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.alcadia.bovid.Exception.UnauthorizedException;
+import com.alcadia.bovid.Models.Dto.UserDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -112,21 +114,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             responseHandler(response, isTokenInvalidateFirma, HttpServletResponse.SC_FORBIDDEN);
 
             return;
-        } 
-        
-        System.out.println("aquiiiiiiiiii validate to list");
-        String validatetokeninlist = jwtAuthenticationProvider.validatetokenInlistToken(header.split(" ")[1]);
-         System.out.println("aquiiiiiiiiii validate to list" + validatetokeninlist);
-         if(  validatetokeninlist !=null){
-             
-               responseHandler(response,validatetokeninlist, HttpServletResponse.SC_FORBIDDEN);
-               return;
         }
 
+        boolean isEnableEmail = validateIsEnableEmail(header.split(" ")[1]);
+
+        if (!isEnableEmail) {
+
+            System.out.println("El usuario no esta habilitado");
+
+            responseHandler(response, "El usuario no esta habilitado", HttpServletResponse.SC_FORBIDDEN);
+
+            return;
+        }
+
+        System.out.println("aquiiiiiiiiii validate to list");
+        String validatetokeninlist = jwtAuthenticationProvider.validatetokenInlistToken(header.split(" ")[1]);
+        System.out.println("aquiiiiiiiiii validate to list" + validatetokeninlist);
+        if (validatetokeninlist != null) {
+
+            responseHandler(response, validatetokeninlist, HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         try {
 
-             
             Authentication auth = jwtAuthenticationProvider.createAuthentication(header.split(" ")[1]);
 
             System.out.println("llegooo hasta autothentication salida de validatetoken" + auth);
@@ -186,5 +197,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String responseJson = getObjectMapper.writeValueAsString(jsonresponse);
 
         return responseJson;
+    }
+
+    private boolean validateIsEnableEmail(String token) throws JsonProcessingException {
+
+        UserDto userDto = jwtService.getUserDto(token);
+
+        if (userDto.isEnabled()) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -63,6 +63,15 @@ public class RegistrationExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AccessDeniedException.class)
+    public Map<String, String> AccessDeniedException(PasswordIncorrectException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
+
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MailSendException.class)
     public Map<String, String> MessagingException(MailSendException ex) {
         Map<String, String> error = new HashMap<>();

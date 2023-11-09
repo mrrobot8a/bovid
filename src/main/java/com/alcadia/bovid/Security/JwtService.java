@@ -2,6 +2,7 @@ package com.alcadia.bovid.Security;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import com.alcadia.bovid.Models.Dto.RoleDto;
 import com.alcadia.bovid.Models.Dto.UserDto;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,6 +62,20 @@ public class JwtService {
 
     public String  getClaimEmail(String token){
         return JWT.decode(token).getClaim("email").asString();
+    }
+
+    public UserDto getUserDto(String token) throws JsonProcessingException {
+        
+        String email = JWT.decode(token).getClaim("email").asString();
+        List<RoleDto> roles = JWT.decode(token).getClaim("roles").asList(RoleDto.class);
+
+        boolean isEnabled = JWT.decode(token).getClaim("isEnabled").asBoolean();
+
+        return UserDto.builder()
+                .email(email)
+                .roles(roles)
+                .isEnabled(isEnabled)
+                .build();
     }
 
     public boolean validateToken(String token) {

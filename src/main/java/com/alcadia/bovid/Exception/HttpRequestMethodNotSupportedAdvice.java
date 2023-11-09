@@ -54,6 +54,8 @@ public class HttpRequestMethodNotSupportedAdvice {
                 ". Métodos permitidos: " + supportedMethods;
     }
 
+
+    //mapear todo los metodos
     private String getSupportedMethods(String requestURL) {
 
         List<String> methods = handlerMapping.getHandlerMethods().entrySet().stream()
