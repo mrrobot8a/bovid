@@ -227,6 +227,7 @@ public class UserServiceImpl implements IUserService {
             // applicationUser.setAuthorities(authorities);
             applicationUser.addRole(role);
             applicationUser.setEmail(registerUserRequest.email());
+            applicationUser.setEnabled(registerUserRequest.isEnableEmail());
 
             funcionarioEntity.setFirtsName(registerUserRequest.firstName());
             funcionarioEntity.setLastName(registerUserRequest.lastName());

@@ -29,7 +29,7 @@ public class Ganadero {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String identificacion;
 
