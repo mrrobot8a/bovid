@@ -285,7 +285,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void changePassword(User theUser, String newPassword) {
+        
         theUser.setPassword(passwordEncoder.encode(newPassword));
+
         userRepository.save(theUser);
     }
 

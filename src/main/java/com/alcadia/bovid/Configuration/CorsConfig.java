@@ -25,6 +25,7 @@ public class CorsConfig implements CorsConfigurationSource{
         corsConfiguration.setAllowedMethods(listHttpMethods);
         // corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.addAllowedOrigin(listOfOriginConfig.get(1) + "**");
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);

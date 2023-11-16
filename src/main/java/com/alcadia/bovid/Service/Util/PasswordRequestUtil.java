@@ -12,7 +12,7 @@ import lombok.Data;
 public class PasswordRequestUtil {
     
     private String email;
-    private String oldPassword;
+    // private String oldPassword;
 
     private String newPassword;
 }
