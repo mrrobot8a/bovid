@@ -4,7 +4,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -17,7 +16,7 @@ public class CorsConfig implements CorsConfigurationSource{
     @Nullable
     public CorsConfiguration getCorsConfiguration(HttpServletRequest arg0) {
 
-        List<String> listOfOriginConfig = List.of("http://localhost:5173,http://localhost:5173/");
+        List<String> listOfOriginConfig = List.of("http://localhost:5173");
         List<String> listHttpMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
         
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -25,7 +24,6 @@ public class CorsConfig implements CorsConfigurationSource{
         corsConfiguration.setAllowedMethods(listHttpMethods);
         // corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.addAllowedOrigin(listOfOriginConfig.get(1) + "**");
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
