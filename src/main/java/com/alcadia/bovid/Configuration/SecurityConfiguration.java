@@ -60,16 +60,16 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    // @Bean
-    // CorsConfigurationSource corsConfigurationSource() {
-    //     CorsConfiguration configuration = new CorsConfiguration();
-    //     configuration
-    //             .setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
-    //     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
-    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    //     source.registerCorsConfiguration("/**", configuration);
-    //     return source;
-    // }
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration
+                .setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
     // @Bean
     // public JwtDecoder jwtDecoder() {

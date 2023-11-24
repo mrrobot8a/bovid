@@ -25,7 +25,7 @@ public class SupportDocument {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "nombres_archivos", columnDefinition = "TEXT")
     // @JsonProperty("nombresArchivosJson")
