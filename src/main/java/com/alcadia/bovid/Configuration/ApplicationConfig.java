@@ -63,9 +63,6 @@ public class ApplicationConfig {
         return new JwtAuthFilter(jwtAuthenticationProvider);
     }
 
-    @Bean
-    public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-        return new RequestMappingHandlerMapping();
-    }
+    
 
 }
