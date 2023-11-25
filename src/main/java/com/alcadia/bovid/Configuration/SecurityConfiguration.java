@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -19,11 +20,13 @@ import com.alcadia.bovid.Exception.AccessDeniedHandlerException;
 import com.alcadia.bovid.Security.JwtAuthFilter;
 import com.alcadia.bovid.Security.utils.Roles;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+
 public class SecurityConfiguration {
 
     private final AccessDeniedHandlerException accessDeniedHandlerException;
@@ -40,7 +43,7 @@ public class SecurityConfiguration {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(new CorsConfig()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .exceptionHandling(t -> t.accessDeniedHandler(accessDeniedHandlerException))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
@@ -60,17 +63,34 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration
-                .setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    
 
+    // @Bean
+    // CorsConfigurationSource corsConfigurationSource() {
+    //     CorsConfiguration configuration = new CorsConfiguration();
+    //     configuration
+    //             .setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
+    //     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
+    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //     source.registerCorsConfiguration("/**", configuration);
+    //     return source;
+    // }
+   
+    private CorsConfigurationSource corsConfigurationSource() {
+        return new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:5173/", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
+                config.setAllowedHeaders(Arrays.asList("*"));
+                config.setAllowCredentials(true);
+                config.setExposedHeaders(Arrays.asList("Authorization"));
+                config.setMaxAge(3600L);
+                return config;
+            }
+        };
+    }
     // @Bean
     // public JwtDecoder jwtDecoder() {
     // return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();

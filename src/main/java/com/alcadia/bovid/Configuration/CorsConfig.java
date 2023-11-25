@@ -17,7 +17,7 @@ public class CorsConfig implements CorsConfigurationSource{
     @Nullable
     public CorsConfiguration getCorsConfiguration(HttpServletRequest arg0) {
 
-        List<String> listOfOriginConfig = List.of("http://localhost:5173");
+        List<String> listOfOriginConfig = List.of("http://localhost:5173,https://localhost:5173,http:127.0");
         List<String> listHttpMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
         
         CorsConfiguration corsConfiguration = new CorsConfiguration();
