@@ -30,6 +30,8 @@ public enum UserMapper implements Function<User, UserDto> {
 
             userDto.setEmail(userEntity.getEmail());
 
+            userDto.setEnabled(userEntity.isEnabled());
+
             List<RoleDto> roles = new ArrayList<>();
 
             for (GrantedAuthority grantedAuthority : userEntity.getAuthorities()) {
