@@ -37,7 +37,7 @@ public class User implements UserDetails {
 
     private String password;
 
-    private boolean isEnabled = false;
+    private boolean isEnabled;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JsonManagedReference
