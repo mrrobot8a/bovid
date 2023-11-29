@@ -1,5 +1,8 @@
 package com.alcadia.bovid.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -8,7 +11,7 @@ import com.alcadia.bovid.Component.InfoRequestClientComponet;
 import com.alcadia.bovid.Exception.CustomerNotExistException;
 import com.alcadia.bovid.Exception.PasswordIncorrectException;
 import com.alcadia.bovid.Models.Dto.RegistrationRequest;
-
+import com.alcadia.bovid.Models.Dto.UserDto;
 import com.alcadia.bovid.Models.Entity.User;
 import com.alcadia.bovid.Repository.Dao.IUserRepository;
 import com.alcadia.bovid.Security.JwtAuthenticationProvider;
@@ -42,22 +45,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Autowired
     private InfoRequestClientComponet getInfoClientComponet;
 
-
     @Override
-    public String signIn(RegistrationRequest userRegistrationRequest, HttpServletRequest request)
+    public Map<String, Object> signIn(RegistrationRequest userRegistrationRequest, HttpServletRequest request)
             throws CustomerNotExistException {
 
-              
-            // Obtiene el método HTTP y la URL
-            String httpMethod = request.getMethod();
-            String url = request.getRequestURL().toString();
-            String ipclient = getInfoClientComponet.getClientIp(request);
-            String path = request.getServletPath();
-            String actionUser = "signIn";
-            String jwt = request.getHeader("Authorization");
+        Map<String, Object> response = new HashMap<>();
+        // Obtiene el método HTTP y la URL
+        String httpMethod = request.getMethod();
+        String url = request.getRequestURL().toString();
+        String ipclient = getInfoClientComponet.getClientIp(request);
+        String actionUser = "signIn";
 
-
-             
         // buscamos el usuario por email
         User userEntity = userRepository.findByEmail(userRegistrationRequest.email())
                 .orElseThrow(() -> new CustomerNotExistException("El usuario ingresado no existe."));
@@ -78,13 +76,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         // ApplicaciontionUserMapper.INSTANCE.apply(userEntity.get());
         // System.out.println("===================DTO================================="
         // + userDTO.getAuthorities());
+        UserDto userDto = UserMapper.INSTANCE.apply(userEntity);
 
-        String token = jwtAuthenticationProvider.createToken(UserMapper.INSTANCE.apply(userEntity));
+        String token = jwtAuthenticationProvider.createToken(userDto);
 
-        historialAuditoriaService.registerHistorial(actionUser, ipclient, httpMethod, url, userRegistrationRequest.email());
+        historialAuditoriaService.registerHistorial(actionUser, ipclient, httpMethod, url,
+                userRegistrationRequest.email());
+                
+        response.put("user", userDto);
+        response.put("token", token);
+        
 
 
-        return token;
+        return response;
     }
 
     @Override
