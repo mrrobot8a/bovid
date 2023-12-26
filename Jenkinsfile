@@ -1,5 +1,12 @@
 pipeline {
     agent any
+
+    
+    tools {
+        // Asegúrate de que el nombre 'Maven-3.9.3' coincida con el configurado en Global Tool Configuration
+        maven 'Maven-3.9.3-bovid'
+    }
+    
     
     environment {
         JAR_FILE = ''
