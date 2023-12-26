@@ -48,11 +48,11 @@ pipeline {
             if (projectDir == 'true') {
                 echo "El directorio ${PROJECT_DIRECTORY} existe, se eliminará."
               //  sh "sudo rm -rf ${PROJECT_DIRECTORY}/.* ${PROJECT_DIRECTORY}/*"
-               sh "sudo find ${PROJECT_DIRECTORY} -mindepth 1 -delete"
+               sh "find ${PROJECT_DIRECTORY} -mindepth 1 -delete"
               
             } 
                 echo "El directorio ${PROJECT_DIRECTORY}  existe, se creará."
-                sh " sudo git clone https://github.com/mrrobot8a/bovid.git ${PROJECT_DIRECTORY}"
+                sh "git clone https://github.com/mrrobot8a/bovid.git ${PROJECT_DIRECTORY}"
                // sh " sudo mkdir ${PROJECT_DIRECTORY}"
             
              }
@@ -64,8 +64,8 @@ pipeline {
                     def mavenVersion = sh(script: 'mvn -v', returnStatus: true)
                     if (mavenVersion != 0) {
                         echo "Maven no está instalado. Instalando Maven..."
-                        sh 'sudo apt update'
-                        sh 'sudo apt install maven -y'
+                        sh 'apt update'
+                        sh 'apt install maven -y'
                     } else {
                         sh 'echo " $M2_HOME"'
                         echo "Maven está instalado."
