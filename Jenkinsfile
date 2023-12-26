@@ -106,7 +106,7 @@ pipeline {
                     def mavenHome = '/var/lib/jenkins/sdkmaven/apache-maven-3.9.3'
 
                     // Use the specified Maven version
-                    sh "${mavenHome}/bin/mvn clean package"
+                    sh "mvn clean package"
                 }   
             }
                  
