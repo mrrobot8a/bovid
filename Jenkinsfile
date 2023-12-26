@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Preparar carpetas') {
             steps {
-               sh 'sudo chown -R jenkins:jenkins /var/lib/jenkins/'
+               sh 'chown -R jenkins:jenkins /var/lib/jenkins/'
             }
             
         }
