@@ -84,7 +84,7 @@ pipeline {
     steps {
         script {
             // Comando para verificar si la base de datos ya existe
-            def databaseExists = sh(script: "mysql -h localhost -P 3306 -u root -p${MYSQL_PASSWORD} -e \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${MYSQL_DB}';\" | grep -q '${MYSQL_DB}'", returnStatus: true)
+            def databaseExists = sh(script: "mysql -h localhost -P 3306 -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -e \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${MYSQL_DB}';\" | grep -q '${MYSQL_DB}'", returnStatus: true)
 
             if (databaseExists == 0) {
                 echo "La base de datos ${MYSQL_DB} ya existe. No es necesario crearla."
