@@ -19,7 +19,25 @@ pipeline {
         PROJECT_DIRECTOR  = '/home/ubuntu/projectbovid/target/'
         
     }
+   
+
     stages {
+
+         stage('Detener instancia existente') {
+            steps {
+                script {
+                    // Busca el proceso Java que ejecuta el JAR y obtén su PID
+                    def pid = sh(script: "ps -ef | grep '[t]arget/${JAR_FILE}' | awk '{print \$2}'", returnStdout: true).trim()
+                    if (pid) {
+                        echo "Deteniendo la instancia existente de la aplicación (PID: ${pid})"
+                        sh "kill ${pid}"
+                    } else {
+                        echo "No se encontró ninguna instancia existente de la aplicación."
+                    }
+                }
+            }
+        }
+        
         stage('Preparar carpetas') {
             steps {
                sh 'chown -R jenkins:jenkins /var/lib/jenkins/'
