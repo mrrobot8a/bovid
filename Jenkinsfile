@@ -23,21 +23,19 @@ pipeline {
 
     stages {
 
-         stage('Detener instancia existente') {
+        stage('Detener JAR en ejecución') {
             steps {
                 script {
-                    // Busca el proceso Java que ejecuta el JAR y obtén su PID
-                    def pid = sh(script: "ps -ef | grep '[t]arget/${JAR_FILE}' | awk '{print \$2}'", returnStdout: true).trim()
-                    if (pid) {
-                        echo "Deteniendo la instancia existente de la aplicación (PID: ${pid})"
-                        sh "kill ${pid}"
+                    def isRunning = sh(script: "ps aux | grep '[j]ava -jar .*${PROJECT_DIRECTORY}/.*\\.jar' | awk '{print \$2}'", returnStdout: true).trim()
+                    if (isRunning) {
+                        echo "Deteniendo el JAR en ejecución con PID: ${isRunning}"
+                        sh "kill ${isRunning}"
                     } else {
-                        echo "No se encontró ninguna instancia existente de la aplicación."
+                        echo "No hay instancias del JAR ejecutándose."
                     }
                 }
             }
         }
-        
         stage('Preparar carpetas') {
             steps {
                sh 'chown -R jenkins:jenkins /var/lib/jenkins/'
