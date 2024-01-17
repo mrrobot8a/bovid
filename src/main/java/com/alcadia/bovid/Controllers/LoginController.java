@@ -180,7 +180,8 @@ public class LoginController {
      *                                      restablecimiento de contraseña por via
      *                                      correo
      */
-    private String passwordResetEmailLink(User user, String applicationUrl, String passwordToken)
+    private String 
+    passwordResetEmailLink(User user, String applicationUrl, String passwordToken)
             throws MessagingException, UnsupportedEncodingException {
 
         String url = applicationUrl + "/auth/reset-password?token=" + passwordToken;
@@ -191,15 +192,17 @@ public class LoginController {
 
         return url;
     }
-
+    
     /**
      * @param request
      * @return
      *         obtener la url de alplicacition
      */
     public String applicationUrl(HttpServletRequest request) {
-        return "http://" + request.getServerName() + ":"
-                + request.getServerPort() + request.getContextPath();
+        // return "http://" + request.getServerName() + ":"
+        //         + request.getServerPort() + request.getContextPath();
+
+        return "http://localhost:5173/Password/";
     }
 
 }

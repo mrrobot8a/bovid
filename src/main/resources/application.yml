@@ -54,10 +54,10 @@ jwt:
 
 # Configuración FTP
 ftp:
-  server: 192.168.56.1
+  server: 190.144.160.138
   port: 21
-  username: mrrobot
-  password: 123456
+  username: ftpbovid
+  password: serestadojoven
 
 # Enable multipart uploads
 
