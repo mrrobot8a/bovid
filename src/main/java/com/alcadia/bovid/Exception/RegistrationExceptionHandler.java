@@ -121,7 +121,16 @@ public class RegistrationExceptionHandler {
         error.put("message", ex.getMessage());
         return error;
     }
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(TokenExpiredException.class)
+    public Map<String, String> handleTokenExpiredRequest(TokenExpiredException ex) {
 
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Solicitud inválida");
+        error.put("message", ex.getMessage());
+        return error;
+    }
     // @ExceptionHandler(JWTVerificationException.class)
     // public ResponseEntity<Object>
     // handleJWTVerificationException(JWTVerificationException ex) {

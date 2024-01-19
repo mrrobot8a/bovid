@@ -1,8 +1,11 @@
 package com.alcadia.bovid.Repository.Dao;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.alcadia.bovid.Models.Entity.PasswordResetToken;
+import com.alcadia.bovid.Models.Entity.User;
 
 
 
@@ -12,5 +15,9 @@ import com.alcadia.bovid.Models.Entity.PasswordResetToken;
  */
 
 public interface IPasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
+
     PasswordResetToken findByToken(String passwordResetToken);
+
+    // Ejemplo: Buscar un usuario por token
+    Optional<PasswordResetToken> findByUser(User user);
 }

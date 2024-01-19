@@ -10,7 +10,7 @@ public class TokenExp extends TokenExpiredException {
 
     public TokenExp(String message, Instant expiredOn) {
         super(message, expiredOn);
-        //TODO Auto-generated constructor stub
+    
     }
 
    

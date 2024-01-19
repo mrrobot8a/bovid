@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -37,6 +37,7 @@ import com.alcadia.bovid.Repository.Dao.IUserRepository;
 import com.alcadia.bovid.Service.Mappers.UserToRegistrationResponse;
 import com.alcadia.bovid.Service.Mappers.UserMapper;
 import com.alcadia.bovid.Service.UserCase.IUserService;
+import com.alcadia.bovid.Service.Util.PasswordRequestUtil;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -205,7 +206,7 @@ public class UserServiceImpl implements IUserService {
 
             // Se envia el correo al usuario con las credenciales
             if (!eventListener.sendCredencial(registerUserRequest)) {
-              log.info("mail no enviado");
+                log.info("mail no enviado");
             }
 
             String encodedPassword = encodePassword(registerUserRequest.password());
@@ -283,11 +284,20 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void changePassword(User theUser, String newPassword) {
-        
-        theUser.setPassword(passwordEncoder.encode(newPassword));
-
-        userRepository.save(theUser);
+    public String changePassword(String token, PasswordRequestUtil passwordResetToken) {
+        return Optional.ofNullable(findUserByPasswordToken(token))
+                .map(user -> {
+                    user.setPassword(passwordEncoder.encode(passwordResetToken.getNewPassword()));
+                    try {
+                        userRepository.save(user);
+                        passwordResetTokenService.deleteToken(token);
+                        return "Se realizo con exito el cambio de  password";
+                    } catch (Exception e) {
+                        // Manejar la excepción de guardado, loggear o notificar según sea necesario.
+                        return "Hubo un error al realizar la operacion";
+                    }
+                })
+                .orElse("Hubo un error al realizar la operacion");
     }
 
     @Override

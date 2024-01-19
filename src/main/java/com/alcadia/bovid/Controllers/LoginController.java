@@ -160,26 +160,30 @@ public class LoginController {
      *         el token es inválido.
      */
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestBody PasswordRequestUtil passwordRequestUtil,
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody PasswordRequestUtil passwordRequestUtil,
             @RequestParam("token") String token) throws MessagingException, UnsupportedEncodingException {
 
+        Map<String, Object> response = new HashMap<>();
         // verificamos la authentication del token para verificar que el token sea
         // generado por la application
         String tokenVerificationResult = userService.validatePasswordResetToken(token);
 
         if (!tokenVerificationResult.equalsIgnoreCase("valid")) {
-            return "Invalid token password reset token";
+
+            response.put("message", "Invalid token password reset token");
+            response.put("success" ,false);
+
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
-        // Busca al usuario asociado con el token.
-        Optional<User> theUser = Optional.ofNullable(userService.findUserByPasswordToken(token));
+        // // Busca al usuario asociado con el token.
+        // Optional<User> theUser =
+        // Optional.ofNullable(userService.findUserByPasswordToken(token));
 
-        if (theUser.isPresent()) {
-            // Cambia la contraseña del usuario con la nueva contraseña proporcionada.
-            userService.changePassword(theUser.get(), passwordRequestUtil.getNewPassword());
-            return "Password has been reset successfully";
-        }
-        return "Invalid password reset token";
+        response.put("message", userService.changePassword(token, passwordRequestUtil));
+        response.put("success", true);
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     /**
@@ -197,8 +201,8 @@ public class LoginController {
             throws MessagingException, UnsupportedEncodingException {
 
         // String url = applicationUrl + "/auth/reset-password?token=" + passwordToken;
-        
-        String url = applicationUrl+passwordToken;
+
+        String url = applicationUrl + "?token=" + passwordToken;
 
         eventListener.sendPasswordResetVerificationEmail(url, user);
 

@@ -5,11 +5,13 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.alcadia.bovid.Exception.TokenExpiredException;
 import com.alcadia.bovid.Models.Entity.PasswordResetToken;
 import com.alcadia.bovid.Models.Entity.User;
 import com.alcadia.bovid.Repository.Dao.IPasswordResetTokenRepository;
 import com.alcadia.bovid.Service.UserCase.IPasswordResetTokenService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -23,6 +25,13 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
 
     public void createPasswordResetTokenForUser(User user, String passwordToken) {
 
+        passwordResetTokenRepository.findByUser(user).ifPresent(
+                (token) -> {
+                    throw new TokenExpiredException("Ya existe un token para este usuario:" + user.getEmail()  + "vence :" + token.getTokenExpirationTime(), null);
+                }
+        );
+        
+
         PasswordResetToken passwordRestToken = new PasswordResetToken(passwordToken, user);
 
         passwordResetTokenRepository.save(passwordRestToken);
@@ -31,6 +40,7 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
     public String validatePasswordResetToken(String passwordResetToken) {
 
         PasswordResetToken passwordToken = passwordResetTokenRepository.findByToken(passwordResetToken);
+
         System.out.println("===============================" + passwordResetToken);
         if (passwordToken == null) {
             return "Invalid verification token";
@@ -67,6 +77,18 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
 
     public PasswordResetToken findPasswordResetToken(String token) {
         return passwordResetTokenRepository.findByToken(token);
+    }
+
+    @Override
+    @Transactional
+    public void deleteToken(String token) {
+
+        PasswordResetToken passwordToken = passwordResetTokenRepository.findByToken(token);
+        
+        if(passwordToken !=  null){
+            passwordResetTokenRepository.delete(passwordToken);
+        }
+       
     }
 
 }

@@ -21,6 +21,8 @@ public interface IPasswordResetTokenService {
     public Optional<User> findUserByPasswordToken(String passwordResetToken);
 
     public PasswordResetToken findPasswordResetToken(String token);
+
+    public void deleteToken(String token);
     
     
 }
