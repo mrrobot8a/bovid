@@ -12,14 +12,24 @@ import com.alcadia.bovid.Models.Dto.RoleDto;
 import com.alcadia.bovid.Models.Dto.UserDto;
 import com.alcadia.bovid.Models.Entity.Role;
 
-public enum RoleToRoleDto implements Function<Role, RoleDto> {
+public enum RoleMapper implements Function<Role, RoleDto> {
     INSTANCE;
 
     @Override
-    public RoleDto apply(Role reoleEntity) {
+    public RoleDto apply(Role roleEntity) {
 
-        if (reoleEntity != null) {
-            RoleDto roleDto = new RoleDto(reoleEntity.getAuthority(), reoleEntity.getAuthority(), null);
+        if (roleEntity != null) {
+            RoleDto roleDto = new RoleDto(
+                    null,
+                    null,
+                    roleEntity.getCodRole(),
+                    roleEntity.getStatus(),
+                    roleEntity.getDescription(),
+                    roleEntity.getAuthority(),
+                    null
+
+            );
+
             return roleDto;
 
         }
@@ -31,8 +41,13 @@ public enum RoleToRoleDto implements Function<Role, RoleDto> {
         if (roles != null) {
             List<RoleDto> roleDtos = roles.getContent()
                     .stream()
-                    .map(role -> new RoleDto(null, role.getAuthority(),
-                            role.getUsers().stream()
+                    .map(roleEntity -> new RoleDto(null,
+                            null,
+                            roleEntity.getCodRole(),
+                            roleEntity.getStatus(),
+                            roleEntity.getDescription(),
+                            roleEntity.getAuthority(),
+                            roleEntity.getUsers().stream()
                                     .map(user -> new UserDto(user.getFullname(), user.getEmail(), null))
                                     .collect(Collectors.toList())))
                     .collect(Collectors.toList());
@@ -46,8 +61,13 @@ public enum RoleToRoleDto implements Function<Role, RoleDto> {
 
         if (roles != null) {
             List<RoleDto> roleDtos = roles.stream()
-                    .map(role -> new RoleDto(null, role.getAuthority(),
-                            role.getUsers().stream()
+                    .map(roleEntity -> new RoleDto(null,
+                            null,
+                            roleEntity.getCodRole(),
+                            roleEntity.getStatus(),
+                            roleEntity.getDescription(),
+                            roleEntity.getAuthority(),
+                            roleEntity.getUsers().stream()
                                     .map(user -> new UserDto(user.getFullname(), user.getEmail(), null))
                                     .collect(Collectors.toList())))
                     .collect(Collectors.toList());
@@ -68,8 +88,7 @@ public enum RoleToRoleDto implements Function<Role, RoleDto> {
 
                     .collect(Collectors.toSet());
 
-
-                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+roleDtos);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + roleDtos);
 
             return roleDtos;
         }

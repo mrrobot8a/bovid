@@ -15,8 +15,7 @@ public enum UserToRegistrationResponse implements Function<User, RegistrationRes
     public RegistrationResponse apply(User userEntity) {
 
         RegistrationResponse registrationResponse = new RegistrationResponse(userEntity.getUsername(),
-                userEntity.getEmail(), userEntity.getPassword());
-
+                userEntity.getEmail());
         return registrationResponse;
 
     }

@@ -7,8 +7,8 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_marcaganaderaTest?useSSL=false
-    username: alcaldia
-    password: Amdin-1230
+    username: root
+    password: sasa
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -56,7 +56,7 @@ jwt:
 ftp:
   server: 190.144.160.138
   port: 21
-  username: ftpbovid
+  username: ftpbovid 
   password: serestadojoven
 
 # Enable multipart uploads

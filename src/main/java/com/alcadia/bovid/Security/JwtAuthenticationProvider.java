@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -103,7 +103,7 @@ public class JwtAuthenticationProvider {
         if (!listToken.containsKey(jwt)) {
 
             throw new InvalidVerificationTokenException(
-                    "token no existe , el usuario  ya cerro session o no ha iniciado ", null);
+                    "token no existe , el usuario  ya cerro session o no ha iniciado ", null, HttpStatus.BAD_REQUEST);
 
         }
 

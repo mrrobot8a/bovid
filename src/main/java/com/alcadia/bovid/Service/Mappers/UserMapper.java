@@ -13,6 +13,7 @@ import com.alcadia.bovid.Models.Dto.RoleDto;
 import com.alcadia.bovid.Models.Dto.UserDto;
 
 import com.alcadia.bovid.Models.Entity.User;
+import com.alcadia.bovid.Models.Entity.Role;
 
 public enum UserMapper implements Function<User, UserDto> {
     INSTANCE;
@@ -24,8 +25,6 @@ public enum UserMapper implements Function<User, UserDto> {
 
             UserDto userDto = new UserDto();
 
-            userDto.setId(userEntity.getId());
-            
             userDto.setFullname(userEntity.getFullname());
 
             userDto.setEmail(userEntity.getEmail());
@@ -34,12 +33,20 @@ public enum UserMapper implements Function<User, UserDto> {
 
             List<RoleDto> roles = new ArrayList<>();
 
-            for (GrantedAuthority grantedAuthority : userEntity.getAuthorities()) {
+            // for (GrantedAuthority grantedAuthority : userEntity.getAuthorities()) {
 
-                roles.add(new RoleDto(grantedAuthority.getAuthority(), grantedAuthority.getAuthority(), null));
+            // roles.add(new RoleDto(grantedAuthority.getAuthority(),
+            // grantedAuthority.getAuthority(), null));
 
-            }
+            // }
 
+            roles = userEntity.getAuthorities().stream()
+                    .filter(role -> role != null)
+                    .map((Function<GrantedAuthority, RoleDto>) role -> RoleDto.builder()
+                            .authority(role.getAuthority())
+                            .status(((Role) role).getStatus()) // Asegúrate de que getStatus() está definido en Role
+                            .build())
+                    .collect(Collectors.toList());
             userDto.setRoles(roles);
 
             return userDto;
@@ -55,8 +62,6 @@ public enum UserMapper implements Function<User, UserDto> {
         if (userDto != null) {
 
             User userEntity = new User();
-
-            userEntity.setId(userDto.getId());
 
             userEntity.setFullname(userDto.getFullname());
 

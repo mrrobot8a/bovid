@@ -7,6 +7,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.NonNull;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class CorsConfig implements CorsConfigurationSource{
 
     @Override
     @Nullable
-    public CorsConfiguration getCorsConfiguration(HttpServletRequest arg0) {
+    public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest arg0) {
 
         List<String> listOfOriginConfig = List.of("http://localhost:5173,https://localhost:5173");
         List<String> listHttpMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");

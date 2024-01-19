@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+src/main/java/com/alcadia/bovid/Configuration/CorsConfig.java

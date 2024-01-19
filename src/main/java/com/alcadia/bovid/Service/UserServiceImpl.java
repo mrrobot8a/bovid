@@ -141,7 +141,7 @@ public class UserServiceImpl implements IUserService {
         // Itera a través de la lista de RoleDto.
         for (RoleDto roleDto : roleDtos) {
             // Busca un objeto Role en la base de datos por su nombre.
-            Role role = roleRepository.findByAuthority(roleDto.getNewNameRole())
+            Role role = roleRepository.findByAuthority(roleDto.getNameRole())
                     .orElseThrow(() -> new RoleNoExistsException(
                             "El rol asignado al usuario no existe en la base de datos"));
 

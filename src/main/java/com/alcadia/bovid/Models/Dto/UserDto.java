@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserDto {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long id;
+    
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String fullname;

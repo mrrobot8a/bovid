@@ -78,6 +78,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         // + userDTO.getAuthorities());
         UserDto userDto = UserMapper.INSTANCE.apply(userEntity);
 
+        System.out.println("============================= USER AUTENTICAITON" + userDto);
+
         String token = jwtAuthenticationProvider.createToken(userDto);
 
         historialAuditoriaService.registerHistorial(actionUser, ipclient, httpMethod, url,
@@ -85,6 +87,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 
         response.put("user", userDto);
         response.put("token", token);
+        response.put("success", true);
+        response.put("message", "Inicio de sesión exitoso");
         
 
 

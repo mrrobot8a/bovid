@@ -60,7 +60,7 @@ public class LoginController {
             // return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
             // }
-            response.put("usuario", userResponse);
+            response.put("user", userResponse);
             response.put("mensaje", "SUCCESS TO REGISTER USER");
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -78,19 +78,32 @@ public class LoginController {
 
     @PostMapping(path = "/sign-out")
     public ResponseEntity<?> signOut(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwt) {
-        return ResponseEntity.ok(AuthUseService.signOut(jwt));
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+
+            response.put("message", AuthUseService.signOut(jwt));
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+
+            response.put("error", "Error al registrar usuario: " + e.getMessage());
+            response.put("mensaje", "ERROR AL RELIZAR EL REGISTRO");
+
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+
+        }
+
     }
 
-    @PostMapping(path = "/sign-in")
+    @PostMapping(path = "/sign-in", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Map<String, Object>> signIn(@RequestBody RegistrationRequest authCustomerDto,
             final HttpServletRequest servletRequest) {
         Map<String, Object> response = new HashMap<>();
 
-        System.out.println("signIn====================auth=======" + authCustomerDto);
-
         try {
             response = AuthUseService.signIn(authCustomerDto, servletRequest);
-            
+
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -180,8 +193,7 @@ public class LoginController {
      *                                      restablecimiento de contraseña por via
      *                                      correo
      */
-    private String 
-    passwordResetEmailLink(User user, String applicationUrl, String passwordToken)
+    private String passwordResetEmailLink(User user, String applicationUrl, String passwordToken)
             throws MessagingException, UnsupportedEncodingException {
 
         String url = applicationUrl + "/auth/reset-password?token=" + passwordToken;
@@ -192,7 +204,7 @@ public class LoginController {
 
         return url;
     }
-    
+
     /**
      * @param request
      * @return
@@ -200,7 +212,7 @@ public class LoginController {
      */
     public String applicationUrl(HttpServletRequest request) {
         // return "http://" + request.getServerName() + ":"
-        //         + request.getServerPort() + request.getContextPath();
+        // + request.getServerPort() + request.getContextPath();
 
         return "http://localhost:5173/Password/";
     }

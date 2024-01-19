@@ -7,12 +7,14 @@ import com.alcadia.bovid.Models.Dto.RoleDto;
 
 public interface IRoleService {
 
-    String creatRele(String role);
+    RoleDto creatRele(RoleDto role);
 
     Page<RoleDto> getAllRoles(int page, int size);
 
     String deleteRole(String role);
 
-    String updateRole(RoleDto newRole);
+    String enableRole(RoleDto role);
+
+    RoleDto updateRole(RoleDto newRole);
 
 }
