@@ -196,7 +196,9 @@ public class LoginController {
     private String passwordResetEmailLink(User user, String applicationUrl, String passwordToken)
             throws MessagingException, UnsupportedEncodingException {
 
-        String url = applicationUrl + "/auth/reset-password?token=" + passwordToken;
+        // String url = applicationUrl + "/auth/reset-password?token=" + passwordToken;
+        
+        String url = applicationUrl+passwordToken;
 
         eventListener.sendPasswordResetVerificationEmail(url, user);
 
