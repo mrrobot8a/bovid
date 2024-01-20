@@ -23,19 +23,19 @@ pipeline {
 
     stages {
 
-        // stage('Detener JAR en ejecución') {
-        //     steps {
-        //         script {
-        //             def isRunning = sh(script: "ps aux | grep '[j]ava -jar .*${PROJECT_DIRECTORY}/.*\\.jar' | awk '{print \$2}'", returnStdout: true).trim()
-        //             if (isRunning) {
-        //                 echo "Deteniendo el JAR en ejecución con PID: ${isRunning}"
-        //                 sh "kill ${isRunning}"
-        //             } else {
-        //                 echo "No hay instancias del JAR ejecutándose."
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Detener JAR en ejecución') {
+            steps {
+                script {
+                    def isRunning = sh(script: "ps aux | grep '[j]ava -jar .*${PROJECT_DIRECTORY}/.*\\.jar' | awk '{print \$2}'", returnStdout: true).trim()
+                    if (isRunning) {
+                        echo "Deteniendo el JAR en ejecución con PID: ${isRunning}"
+                        sh "kill ${isRunning}"
+                    } else {
+                        echo "No hay instancias del JAR ejecutándose."
+                    }
+                }
+            }
+        }
         stage('Preparar carpetas') {
             steps {
                sh 'chown -R jenkins:jenkins /var/lib/jenkins/'
@@ -119,7 +119,7 @@ pipeline {
                    sh 'pwd'
                 //   sh 'mvn clean install'
                    // Define the path to your Maven 3.9.3 installation
-                    def mavenHome = '/var/lib/jenkins/sdkmaven/apache-maven-3.9.3'
+                    // def mavenHome = '/var/lib/jenkins/sdkmaven/apache-maven-3.9.3'
 
                     // Use the specified Maven version
                     sh "mvn clean package"
@@ -138,6 +138,8 @@ pipeline {
                 // Use the find command to locate the .jar file in the target directory
                 JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true ).trim()
                 echo "JAR file found: ${JAR_FILE}"
+               
+
 
                 if (JAR_FILE == null) {
                     error "Archivo JAR no encontrado en la carpeta 'target'. Verifica la construcción."
@@ -145,7 +147,6 @@ pipeline {
 
                 echo "Jar file found: ${JAR_FILE}"
                 sh "java -jar ${PROJECT_DIRECTORY}/${JAR_FILE} --spring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB} --spring.datasource.username=${MYSQL_USER} --spring.datasource.password=${MYSQL_PASSWORD}"
-
                 } catch (Exception e) {
                 echo "Ocurrió un error en la etapa de despliegue: ${e}"
                 currentBuild.result = 'FAILURE' // Marcar el pipeline como fallido
