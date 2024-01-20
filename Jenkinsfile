@@ -112,22 +112,20 @@ pipeline {
         }
     }
 }
-        stage('Construir') {
-            steps {
-                script {
-                   sh 'whoami'
-                   sh 'pwd'
-                //   sh 'mvn clean install'
-                   // Define the path to your Maven 3.9.3 installation
-                    // def mavenHome = '/var/lib/jenkins/sdkmaven/apache-maven-3.9.3'
-
-                    // Use the specified Maven version
-                    sh "mvn clean package"
-                }   
-            }
-                 
-               
-        }     
+stage('Construir') {
+    steps {
+        script {
+            sh "mvn clean package"
+        }
+    }
+}   
+stage('Debug') {
+    steps {
+        script {
+            sh "ls -la ${PROJECT_DIRECTORY}"
+        }
+    }
+}
             
         stage('Desplegar') {
             steps {
