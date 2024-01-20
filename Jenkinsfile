@@ -135,10 +135,11 @@ pipeline {
                 script {
                     
                  try {
+                    sh "ls -la ${PROJECT_DIRECTORY}/target"
                 // Use the find command to locate the .jar file in the target directory
                 JAR_FILE = sh(script: 'find target -type f -name "*.jar" | head -1', returnStdout: true ).trim()
                 echo "JAR file found: ${JAR_FILE}"
-               
+                sh "chmod +x ${PROJECT_DIRECTORY}/${JAR_FILE}"
 
 
                 if (JAR_FILE == null) {
