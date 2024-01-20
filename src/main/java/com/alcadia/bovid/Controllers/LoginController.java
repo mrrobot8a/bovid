@@ -128,7 +128,9 @@ public class LoginController {
     public String resetPasswordRequest(@RequestBody PasswordRequestUtil passwordRequestUtil,
             final HttpServletRequest servletRequest)
             throws MessagingException, UnsupportedEncodingException {
+
         System.out.println("passwordRequestUtil====================auth=======" + passwordRequestUtil);
+
         User user = userService.findByEmail(passwordRequestUtil.getEmail());
 
         String passwordResetUrl = "";
@@ -137,9 +139,11 @@ public class LoginController {
 
             String passwordResetToken = UUID.randomUUID().toString();
 
-            passwordResetUrl = passwordResetEmailLink(user, applicationUrl(servletRequest), passwordResetToken);
 
             userService.createPasswordResetTokenForUser(user, passwordResetToken);
+
+            passwordResetUrl = passwordResetEmailLink(user, applicationUrl(servletRequest), passwordResetToken);
+
 
             return passwordResetUrl;
 
@@ -170,7 +174,7 @@ public class LoginController {
 
         if (!tokenVerificationResult.equalsIgnoreCase("valid")) {
 
-            response.put("message", "Invalid token password reset token");
+            response.put("message", "Invalid jhon token password reset token");
             response.put("success" ,false);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);

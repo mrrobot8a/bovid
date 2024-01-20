@@ -27,10 +27,16 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
 
         passwordResetTokenRepository.findByUser(user).ifPresent(
                 (token) -> {
-                    throw new TokenExpiredException("Ya existe un token para este usuario:" + user.getEmail()  + "vence :" + token.getTokenExpirationTime(), null);
-                }
-        );
-        
+
+                    if (isTokenExpired(token)) {
+                        passwordResetTokenRepository.delete(token);
+                        return;
+                    } else {
+                        throw new TokenExpiredException("Ya existe un token para este usuario:" + user.getEmail()
+                                + " vence :" + token.getTokenExpirationTime(), null);
+                    }
+
+                });
 
         PasswordResetToken passwordRestToken = new PasswordResetToken(passwordToken, user);
 
@@ -43,7 +49,7 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
 
         System.out.println("===============================" + passwordResetToken);
         if (passwordToken == null) {
-            return "Invalid verification token";
+            return "Invalid aqui jhon verification token";
         }
 
         // User user = passwordToken.getUser();
@@ -57,6 +63,20 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
         }
 
         return "valid";
+    }
+
+    private boolean isTokenExpired(PasswordResetToken passwordResetToken) {
+
+        Calendar calendar = Calendar.getInstance();
+
+        if ((passwordResetToken.getExpirationTime().getTime() - calendar.getTime().getTime()) <= 0) {
+
+            return true;
+
+        } else {
+            return false;
+        }
+
     }
 
     /**
@@ -84,11 +104,11 @@ public class PasswordResetTokenServiceImple implements IPasswordResetTokenServic
     public void deleteToken(String token) {
 
         PasswordResetToken passwordToken = passwordResetTokenRepository.findByToken(token);
-        
-        if(passwordToken !=  null){
+
+        if (passwordToken != null) {
             passwordResetTokenRepository.delete(passwordToken);
         }
-       
+
     }
 
 }
