@@ -23,19 +23,19 @@ pipeline {
 
     stages {
 
-        stage('Detener JAR en ejecución') {
-            steps {
-                script {
-                    def isRunning = sh(script: "ps aux | grep '[j]ava -jar .*${PROJECT_DIRECTORY}/.*\\.jar' | awk '{print \$2}'", returnStdout: true).trim()
-                    if (isRunning) {
-                        echo "Deteniendo el JAR en ejecución con PID: ${isRunning}"
-                        sh "kill ${isRunning}"
-                    } else {
-                        echo "No hay instancias del JAR ejecutándose."
-                    }
-                }
-            }
-        }
+        // stage('Detener JAR en ejecución') {
+        //     steps {
+        //         script {
+        //             def isRunning = sh(script: "ps aux | grep '[j]ava -jar .*${PROJECT_DIRECTORY}/.*\\.jar' | awk '{print \$2}'", returnStdout: true).trim()
+        //             if (isRunning) {
+        //                 echo "Deteniendo el JAR en ejecución con PID: ${isRunning}"
+        //                 sh "kill ${isRunning}"
+        //             } else {
+        //                 echo "No hay instancias del JAR ejecutándose."
+        //             }
+        //         }
+        //     }
+        // }
         stage('Preparar carpetas') {
             steps {
                sh 'chown -R jenkins:jenkins /var/lib/jenkins/'
