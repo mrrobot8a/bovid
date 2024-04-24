@@ -1,4 +1,6 @@
-package com.alcadia.bovid.Component;
+package com.alcadia.bovid.Component.util;
+
+
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

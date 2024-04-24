@@ -1,13 +1,18 @@
 package com.alcadia.bovid.Models.Dto;
 
-import lombok.Data;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ZonaDto {
+@Data
+public class SupportDocumentDto {
 
-    private String codigoPostalCode;
+    private Long id;
+
+    private String fileName;
+
+    private String urlFile;
+
 }

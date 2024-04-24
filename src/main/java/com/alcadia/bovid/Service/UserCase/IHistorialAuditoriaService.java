@@ -16,8 +16,8 @@ public interface IHistorialAuditoriaService {
     void  registerHistorial(String actionUser, String ipClient,String httpMethod,String url,String emailUser);
     
     Set<HisotiralAuditor> findByUsersId(Long userId);
-
-    Boolean logout(String emailUser);
+    
+    void updateHistorial(String idUser);
 
     Page<HistoryAuditordDto> getAllHisotiralesPage(int page, int size);
      

@@ -10,7 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileCopyUtils;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,7 +67,7 @@ public class SupportDocumentController {
         try {
 
             // Verifica si el nombre del archivo termina con ".pdf"
-            if (!fileName.toLowerCase().endsWith(".pdf")|| !fileName.toLowerCase().endsWith(".jpeg")) {
+            if (!fileName.toLowerCase().endsWith(".pdf") && !fileName.toLowerCase().endsWith(".png")) {
                 throw new InvalidPdfRequestException("El archivo solicitado no es válido.");
             }
 
@@ -77,7 +77,7 @@ public class SupportDocumentController {
               
             if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
                 headers.setContentDispositionFormData("attachment", fileName);
                 headers.setCacheControl("no-cache, no-store, must-revalidate");
                 headers.setPragma("no-cache");

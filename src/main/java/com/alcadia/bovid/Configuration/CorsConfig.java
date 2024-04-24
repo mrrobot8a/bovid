@@ -2,7 +2,7 @@ package com.alcadia.bovid.Configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -16,7 +16,7 @@ public class CorsConfig implements CorsConfigurationSource{
 
     @Override
     @Nullable
-    public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest arg0) {
+    public CorsConfiguration getCorsConfiguration(@SuppressWarnings("null") @NonNull HttpServletRequest arg0) {
 
         List<String> listOfOriginConfig = List.of("http://localhost:5173,https://localhost:5173");
         List<String> listHttpMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");

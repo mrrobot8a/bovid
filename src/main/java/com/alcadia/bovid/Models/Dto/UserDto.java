@@ -11,26 +11,44 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
 
-    
+    private String fullName;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String fullname;
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    private String position;
+
+    private String numberPhone;
 
     private String email;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String password;
 
     private List<RoleDto> roles;
+    private boolean enabled;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private boolean isEnabled;
+    // @JsonInclude(JsonInclude.Include.NON_NULL)
+    // private boolean isEnabled;
 
-    public UserDto(String fullname, String email, List<RoleDto> roles) {
-        this.fullname = fullname;
+    public UserDto(Long id, String firsName, String lastName, String email, String password, List<RoleDto> roles,
+            String position,
+            String numberPhone, boolean enabled) {
+        this.id = id;
+        this.firstName = firsName;
+        this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.roles = roles;
+        this.position = position;
+        this.numberPhone = numberPhone;
+        this.enabled = enabled;
     }
 
     // Método estático para crear una instancia del Builder
@@ -41,10 +59,25 @@ public class UserDto {
     // Clase Builder interna
     public static class UserDtoBuilder {
         private String fullname;
+
+        private String firstName;
+
+        private String lastName;
         private String email;
         private String password;
         private List<RoleDto> roles;
-        private boolean isEnabled;
+        // private boolean isEnabled;
+        private boolean enabled;
+
+        public UserDtoBuilder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public UserDtoBuilder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
 
         public UserDtoBuilder fullname(String fullname) {
             this.fullname = fullname;
@@ -66,19 +99,26 @@ public class UserDto {
             return this;
         }
 
-        public UserDtoBuilder isEnabled(boolean isEnabled) {
-            this.isEnabled = isEnabled;
+        public UserDtoBuilder enabled(boolean enabled) {
+            this.enabled = enabled;
             return this;
         }
+        // public UserDtoBuilder isEnabled(boolean isEnabled) {
+        // this.isEnabled = isEnabled;
+        // return this;
+        // }
 
         // Método para construir una instancia de UserDto
         public UserDto build() {
             UserDto userDto = new UserDto();
-            userDto.fullname = this.fullname;
+            userDto.fullName = this.fullname;
+            userDto.firstName = this.firstName;
+            userDto.lastName = this.lastName;
             userDto.email = this.email;
             userDto.password = this.password;
             userDto.roles = this.roles;
-            userDto.isEnabled = this.isEnabled;
+            // userDto.isEnabled = this.isEnabled;
+            userDto.enabled = this.enabled;
             return userDto;
         }
     }

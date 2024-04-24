@@ -10,10 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.Arrays;
 
@@ -27,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-
 public class SecurityConfiguration {
 
     private final AccessDeniedHandlerException accessDeniedHandlerException;
@@ -49,9 +45,9 @@ public class SecurityConfiguration {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**", "/auth**").permitAll();
-                    auth.requestMatchers("/admin/**").hasRole(Roles.ADMIN);
+                    auth.requestMatchers("/admin/**").hasAnyRole(Roles.ADMIN, Roles.Usuario);
                     auth.requestMatchers("/user/**", "/user**").hasAnyRole(Roles.FUNCIONARIO,
-                            Roles.ADMIN);
+                            Roles.ADMIN, Roles.Usuario);
                     auth.anyRequest().authenticated();
                 });
 
@@ -59,17 +55,14 @@ public class SecurityConfiguration {
 
         return http.build();
     }
-
-    
-
-   
-   
+  
     private CorsConfigurationSource corsConfigurationSource() {
         return new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:5173/", "https://d2zpl8rr-5173.use2.devtunnels.ms"));
+                config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:4200","http://localhost:5173/", "http://localhost:8000/","http://localhost:8000",
+                   "http://localhost:48496","http://localhost:5037/","https://d2zpl8rr-5173.use2.devtunnels.ms"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);

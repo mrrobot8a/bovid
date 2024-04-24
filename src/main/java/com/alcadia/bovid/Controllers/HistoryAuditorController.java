@@ -16,10 +16,8 @@ import com.alcadia.bovid.Models.Dto.HistoryAuditordDto;
 import com.alcadia.bovid.Service.UserCase.IHistorialAuditoriaService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class HistoryAuditorController {
@@ -54,7 +52,8 @@ public class HistoryAuditorController {
         } catch (Exception e) {
 
             response.put("mensaje", "ERROR AL REALIZAR LA CONSULTA");
-
+            response.put("erro", e.getMessage() );
+            response.put("cause", e.getCause() );   
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }

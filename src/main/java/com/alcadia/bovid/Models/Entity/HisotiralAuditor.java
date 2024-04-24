@@ -1,9 +1,9 @@
 package com.alcadia.bovid.Models.Entity;
 
-
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -42,16 +42,15 @@ public class HisotiralAuditor {
     private String httpMethod;
 
     private String actionUser;
-   
-    @Column(name = "url" , length = 150 , columnDefinition = "varchar(150)")
+
+    @Column(name = "url", length = 150, columnDefinition = "varchar(150)")
     private String url;
 
-    @CreationTimestamp
+    // @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "SingIn_Date")
     private Date SingInDate;
 
-  
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "logout_date")
     private Date LogoutDate;
@@ -61,10 +60,14 @@ public class HisotiralAuditor {
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
 
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JsonManagedReference
     @JoinColumn(name = "usuario_id") // Nombre de la columna de clave foránea en la tabla de Funcionario
-    private User users ;
+    private User users;
 
     // public void setAnexosPdf(<AnexoPdf> anexoPdf) {
     // this.anexosPdf = anexoPdf;
@@ -73,8 +76,6 @@ public class HisotiralAuditor {
     // }
 
     // }
-
-    
 
     // @PrePersist
     // public void prePersist() {

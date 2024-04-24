@@ -30,7 +30,9 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fullname;
+    private String firstName;
+
+    private String lastName;
 
     @NaturalId(mutable = true)
     private String email;
@@ -57,7 +59,7 @@ public class User implements UserDetails {
     @Override
 
     public String getUsername() {
-        return this.fullname;
+        return this.firstName + " " + this.lastName;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.isEnabled;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class User implements UserDetails {
         StringBuilder sb = new StringBuilder();
         sb.append("User{");
         sb.append("id=").append(id);
-        sb.append(", fullname='").append(fullname).append('\'');
+        sb.append(", fullname='").append(firstName+" "+lastName).append('\'');
         sb.append(", email='").append(email).append('\'');
         sb.append(", isEnabled=").append(isEnabled);
 

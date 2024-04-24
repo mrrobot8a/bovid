@@ -1,7 +1,6 @@
 package com.alcadia.bovid.Event.Listener;
 
 import java.io.UnsupportedEncodingException;
-import java.util.UUID;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.MailSendException;
@@ -20,12 +19,12 @@ import com.alcadia.bovid.Models.Entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * @author Sampson Alfred
  */
-@Slf4j
+
 @Component
 @RequiredArgsConstructor
 public class RegistrationCompleteEventListener implements ApplicationListener<RegistrationCompleteEvent> {
@@ -35,7 +34,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
     private User theUser;
 
     @Override
-    public void onApplicationEvent(RegistrationCompleteEvent event) {
+    public void onApplicationEvent(@SuppressWarnings("null") RegistrationCompleteEvent event) {
         // // 1. Get the newly registered user
         // theUser = event.getUser();
         // // 2. Create a verification token for the user
@@ -54,17 +53,18 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         // log.info("Click the link to verify your registration : {}", url);
     }
 
+    @SuppressWarnings("null")
     public void sendVerificationEmail(String url) throws MessagingException, UnsupportedEncodingException {
         String subject = "Email Verification";
         String senderName = "User Registration Portal Service";
-        String mailContent = "<p> Hi, " + theUser.getFullname() + ", </p>" +
+        String mailContent = "<p> Hi, " + theUser.getFirstName() +""+ theUser.getLastName() + ", </p>" +
                 "<p>Thank you for registering with us," + "" +
                 "Please, follow the link below to complete your registration.</p>" +
                 "<a href=\"" + url + "\">Verify your email to activate your account</a>" +
                 "<p> Thank you <br> Users Registration Portal Service";
         MimeMessage message = mailSender.createMimeMessage();
         var messageHelper = new MimeMessageHelper(message);
-        messageHelper.setFrom("jandersonperalta@unicesar.edu.co", senderName);
+        messageHelper.setFrom("marcaganado@gmail.com", senderName);
         messageHelper.setTo(theUser.getEmail());
         messageHelper.setSubject(subject);
         messageHelper.setText(mailContent, true);
@@ -75,7 +75,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
             throws MessagingException, UnsupportedEncodingException {
         String subject = "Password Reset Request Verification";
         String senderName = "User Registration Portal Service";
-        String mailContent = "<p> Hi, " + user.getFullname() + ", </p>" +
+        String mailContent = "<p> Hi, " + user.getFirstName() +""+ user.getLastName()+ ", </p>" +
                 "<p><b>You recently requested to reset your password,</b>" + "" +
                 "Please, follow the link below to complete the action.</p>" +
                 "<a href=\"" + url + "\">Reset password</a>" +
@@ -83,7 +83,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 
         MimeMessage message = mailSender.createMimeMessage();
         var messageHelper = new MimeMessageHelper(message);
-        messageHelper.setFrom("jandersonperalta@unicesar.edu.co", senderName);
+        messageHelper.setFrom("marcaganado@gmail.com", senderName);
         messageHelper.setTo(user.getEmail());
         messageHelper.setSubject(subject);
         messageHelper.setText(mailContent, true);
@@ -97,18 +97,18 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 
         String subject = "envio de credenciales de acceso";
         String senderName = "APLICACION DE GANADERIA BOVID";
-        String mailContent = "<p> Hi, " + user.firstName() + " " + user.lastName() + ", </p>" +
+        String mailContent = "<p> Hi, " + user.getFirstName() + " " + user.getLastName() + ", </p>" +
                 "<p><b>You recently requested to reset your password,</b>" + "" +
                 "Please, follow the link below to complete the action.</p>" +
-                "<p> Your email is : " + user.email() + ". </p>" +
-                "<p> Your password is : " + user.password() + ". </p>" +
+                "<p> Your email is : " + user.getEmail() + ". </p>" +
+                "<p> Your password is : " + user.getPassword() + ". </p>" +
                 "<p> Alcaldia de valledupar " + "</p>" +
                 "<p> Users Registration Portal Service ";
 
         MimeMessage message = mailSender.createMimeMessage();
         var messageHelper = new MimeMessageHelper(message);
         messageHelper.setFrom("marcaganado@gmail.com", senderName);
-        messageHelper.setTo(user.email());
+        messageHelper.setTo(user.getEmail());
         messageHelper.setSubject(subject);
         messageHelper.setText(mailContent, true);
         System.out.println("=====================================" + "envio de email");

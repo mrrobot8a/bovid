@@ -1,14 +1,31 @@
 package com.alcadia.bovid.Models.Dto;
 
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author JHON PERALTA
  */
 
-public record RegistrationRequest
-(String firstName, String lastName, String email,
- String password,String role ,String codeAdmin, String numberPhone,Boolean isEnableEmail,String position) {
-    // No es necesario definir explícitamente los campos ni implementar métodos.
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class RegistrationRequest {
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private List<RoleDto> roles;
+    private String codeAdmin;
+    private String numberPhone;
+    private Boolean enabled;
+    private String position;
 }
-

@@ -35,8 +35,8 @@ public class RoleController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-
-            response.put("role", roleService.creatRele(roleRequest));
+            roleRequest = roleService.createRole(roleRequest);
+            response.put("role", roleRequest);
             response.put("mensaje", "SUCCESS TO Register ROLE");
             response.put("success", true);
 
@@ -64,18 +64,20 @@ public class RoleController {
 
             Page<RoleDto> rolePage = roleService.getAllRoles(page, size);
 
-            response.put("roles", rolePage.getContent());
-            response.put("currentPage", rolePage.getNumber());
-            response.put("totalItems", rolePage.getTotalElements());
-            response.put("totalPages", rolePage.getTotalPages());
+            response.put("roles", rolePage);
+            response.put("menssage", "SUCCESS TO GET ROLES");
+            response.put("success", true);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
             // Maneja la excepción aquí si ocurre algún error, como un error en la base de
             // datos
             response.put("error", "Error al obtener roles: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/update-role")
@@ -96,6 +98,7 @@ public class RoleController {
             // Maneja la excepción aquí si ocurre algún error, como un error en la base de
             // datos
             response.put("error", "Error al actualizar rol: " + e.getMessage());
+            response.put("succes", false);
 
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

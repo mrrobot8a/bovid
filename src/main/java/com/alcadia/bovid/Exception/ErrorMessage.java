@@ -1,5 +1,8 @@
 package com.alcadia.bovid.Exception;
 
+import org.springframework.http.HttpStatus;
+
+
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -7,15 +10,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ErrorMessage  extends RuntimeException{
 
-    private int errorcode;
+    private HttpStatus errorcode;
     private String errormessage;
 
-    public ErrorMessage(int errorcode, String errormessage) {
+    public ErrorMessage(HttpStatus errorcode, String errormessage) {
         this.errorcode = errorcode;
         this.errormessage = errormessage;
     }
 
-    public int getErrorcode() {
+    public HttpStatus getErrorcode() {
         return errorcode;
     }
 

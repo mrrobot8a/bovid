@@ -9,6 +9,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.alcadia.bovid.Exception.RoleNoExistsException;
@@ -47,11 +49,14 @@ public class HistorialAuditoriaServiceImpl implements IHistorialAuditoriaService
             if (actionUser.equals("signOut")) {
                 hisotiralAuditor.setLogoutDate(new Date());
             }
+            if (actionUser.equals("signIn")) {
+                hisotiralAuditor.setSingInDate(new Date());
+            }
 
             //
             User userEntity = userService.findByEmail(emailUser);
 
-            System.out.println("histori====================================" + httpMethod + url);
+            System.out.println("histori=Service===================================" + userEntity.toString());
 
             hisotiralAuditor.setHttpMethod(httpMethod);
             hisotiralAuditor.setActionUser(actionUser);
@@ -80,27 +85,14 @@ public class HistorialAuditoriaServiceImpl implements IHistorialAuditoriaService
         return historialAuditoriaRepository.findByUsersId(userId);
     }
 
-    @Override
-    public Boolean logout(String emailUser) {
-
-        // Set<HisotiralAuditor> historialEntity = userService.findByEmail(emailUser);
-
-        // historialEntity.forEach(historial -> {
-        // historial.setLogoutDate(new Date());
-        // });
-
-        // // historialAuditoriaRepository.saveAll(historialEntity);
-
-        return true;
-
-    }
+    
 
     @Override
     public Page<HistoryAuditordDto> getAllHisotiralesPage(int page, int size) {
 
         try {
 
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, "users.firstName"));
 
             Page<HisotiralAuditor> historialAuditor = historialAuditoriaRepository.findAll(pageable);
 
@@ -112,10 +104,16 @@ public class HistorialAuditoriaServiceImpl implements IHistorialAuditoriaService
 
         } catch (Exception e) {
 
-            throw new RoleNoExistsException("Historial vacio");
+            throw e;
 
         }
 
+    }
+
+    @Override
+    public void updateHistorial(String idUser) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateHistorial'");
     }
 
 }

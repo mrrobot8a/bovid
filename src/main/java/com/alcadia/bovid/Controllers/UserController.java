@@ -42,12 +42,12 @@ public class UserController {
             Page<UserDto> userPage = userService.getAllUsers(page, size);
 
             System.out.println(userPage.getContent().toString());
+            if(userPage != null){
+                response.put("users",userPage);
+                response.put("mensaje", "SUCCESS TO GET USERS");
+            }
 
-            response.put("user", userPage.getContent());
-            response.put("currentPage", userPage.getNumber());
-            response.put("totalItems", userPage.getTotalElements());
-            response.put("totalPages", userPage.getTotalPages());
-
+           
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {

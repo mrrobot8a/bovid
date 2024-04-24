@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,18 +50,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      * @return True la URI existe en la lista blanca, false de lo contrario
      * @throws ServletException
      */
+   
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        System.out.println("en esta peticion se rompe");
-        System.out.println(request.getRequestURI());
-        System.out.println(request.getRequestURL());
-        System.out.println(!request.getRequestURI().equals("/auth/sign-out"));
-
-        if ("/auth/sign-out".equals(request.getRequestURI())) {
-            return false;
-        }
-
-        return urlsToSkip.stream().anyMatch(url -> request.getRequestURI().contains(url));
+        System.out.println("llegué aqui shouldNotFilter");
+        System.out.println("Esto se ronpe en :==="+request.getRequestURI());
+        System.out.println("headers:" + request);
+        System.out.println("headers:" + request.getHeaders(HttpHeaders.AUTHORIZATION).toString());
+        String requestUri = request.getRequestURI();
+        return urlsToSkip.stream().anyMatch(uri -> requestUri.startsWith(uri));
     }
 
     /**
@@ -79,6 +76,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      *                               o no tiene 'Bearer'
      *                               - Si el token no es valido
      */
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -107,7 +105,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         // validacion para firma del token
-        String isTokenInvalidateFirma = jwtService.validatefirma(header.split(" ")[1]);
+        String isTokenInvalidateFirma = jwtService.validateFirma(header.split(" ")[1]);
 
         if (isTokenInvalidateFirma != null) {
 
@@ -115,7 +113,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             return;
         }
-
+        //valida si el usuario esta activo o no 
         boolean isEnableEmail = validateIsEnableEmail(header.split(" ")[1]);
 
         if (!isEnableEmail) {
@@ -128,6 +126,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         System.out.println("aquiiiiiiiiii validate to list");
+        //verifica si el token esta en la lista de token registrados
         String validatetokeninlist = jwtAuthenticationProvider.validatetokenInlistToken(header.split(" ")[1]);
         System.out.println("aquiiiiiiiiii validate to list" + validatetokeninlist);
         if (validatetokeninlist != null) {
@@ -209,4 +208,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         return false;
     }
+
+    
 }

@@ -7,7 +7,7 @@ import com.alcadia.bovid.Models.Dto.RoleDto;
 
 public interface IRoleService {
 
-    RoleDto creatRele(RoleDto role);
+    RoleDto createRole(RoleDto role);
 
     Page<RoleDto> getAllRoles(int page, int size);
 

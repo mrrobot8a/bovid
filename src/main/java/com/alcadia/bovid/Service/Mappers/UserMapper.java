@@ -24,29 +24,29 @@ public enum UserMapper implements Function<User, UserDto> {
         if (userEntity != null) {
 
             UserDto userDto = new UserDto();
-
-            userDto.setFullname(userEntity.getFullname());
-
+            userDto.setId(userEntity.getId());
+            userDto.setFirstName(userEntity.getFirstName());
+            userDto.setLastName(userEntity.getLastName());
+            userDto.setPassword(userEntity.getPassword());
             userDto.setEmail(userEntity.getEmail());
-
             userDto.setEnabled(userEntity.isEnabled());
+            userDto.setNumberPhone(userEntity.getFuncionario().getNumberPhone());
+            userDto.setPosition(userEntity.getFuncionario().getPosition());
 
             List<RoleDto> roles = new ArrayList<>();
 
-            // for (GrantedAuthority grantedAuthority : userEntity.getAuthorities()) {
+            for (GrantedAuthority grantedAuthority : userEntity.getAuthorities()) {
 
-            // roles.add(new RoleDto(grantedAuthority.getAuthority(),
-            // grantedAuthority.getAuthority(), null));
+            roles.add(new RoleDto(grantedAuthority.getAuthority(),
+                    ((Role) grantedAuthority).getStatus()));
 
-            // }
+            }
 
-            roles = userEntity.getAuthorities().stream()
-                    .filter(role -> role != null)
-                    .map((Function<GrantedAuthority, RoleDto>) role -> RoleDto.builder()
-                            .authority(role.getAuthority())
-                            .status(((Role) role).getStatus()) // Asegúrate de que getStatus() está definido en Role
-                            .build())
-                    .collect(Collectors.toList());
+            // roles = userEntity.getAuthorities().stream()
+            //         .map( role -> RoleDto.builder()
+            //                 .authority(role.getAuthority()).status(((Role) role).getStatus()).build())
+            //         .collect(Collectors.toList());
+
             userDto.setRoles(roles);
 
             return userDto;
@@ -63,7 +63,8 @@ public enum UserMapper implements Function<User, UserDto> {
 
             User userEntity = new User();
 
-            userEntity.setFullname(userDto.getFullname());
+            userEntity.setFirstName(userDto.getFirstName());
+            userEntity.setLastName(userDto.getLastName());
 
             userEntity.setEmail(userDto.getEmail());
 
@@ -82,10 +83,13 @@ public enum UserMapper implements Function<User, UserDto> {
         if (users != null) {
             List<UserDto> userDtos = users.getContent()
                     .stream()
-                    .map(user -> new UserDto(user.getFullname(), user.getEmail(),
+                    .map(user -> new UserDto(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(),
+                            user.getPassword(),
                             user.getAuthorities().stream()
-                                    .map(role -> new RoleDto(null, role.getAuthority(), null))
-                                    .collect(Collectors.toList())))
+                                    .map(role -> new RoleDto(role.getAuthority(), ((Role) role).getStatus()))
+                                    .collect(Collectors.toList()),
+                            user.getFuncionario().getPosition(), user.getFuncionario().getNumberPhone(),
+                            user.isEnabled()))
                     .collect(Collectors.toList());
 
             System.out.println("============userDtos================>" + userDtos.toString());

@@ -3,8 +3,12 @@ package com.alcadia.bovid.Models.Entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.NaturalId;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +34,9 @@ public class Ganadero {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @NaturalId
+    @Column(unique = true , nullable = false , length = 12)
     private String identificacion;
 
     private String firstName;
@@ -44,7 +50,8 @@ public class Ganadero {
     private SupportDocument supportDocument;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "ganadero_id", nullable = false) // Columna que hace referencia al ID del Ganadero
+    @JoinColumn(name = "ganadero_id", referencedColumnName = "id")
+    @JsonManagedReference
     private Set<MarcaGanadera> marcaGanadera = new HashSet<>();
 
     public void addMarcaGanadera(MarcaGanadera marcaGanadera) {

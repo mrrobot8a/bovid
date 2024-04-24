@@ -8,10 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.crypto.KeyGenerator;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,7 @@ import com.alcadia.bovid.Repository.Dao.IUserRepository;
 import com.alcadia.bovid.Service.Mappers.UserToRegistrationResponse;
 import com.alcadia.bovid.Service.Mappers.UserMapper;
 import com.alcadia.bovid.Service.UserCase.IUserService;
+import com.alcadia.bovid.Service.Util.KeyGeneratorUtil;
 import com.alcadia.bovid.Service.Util.PasswordRequestUtil;
 
 import jakarta.mail.MessagingException;
@@ -99,13 +104,21 @@ public class UserServiceImpl implements IUserService {
 
         try {
 
-            User user = userRepository.findByEmail(userDto.getEmail()).orElseThrow(
-                    () -> new RoleNoExistsException(
+            User user = userRepository.findById(userDto.getId()).orElseThrow(
+                    () -> new CustomerNotExistException(
                             "Usuario no encotrado"));
+                            
+            String encodedPassword = KeyGeneratorUtil.encryptString(userDto.getPassword());
 
-            user.setFullname(userDto.getFullname());
+            user.setFirstName(userDto.getFirstName());
+            user.setLastName(userDto.getLastName());
+            user.setPassword(encodedPassword);
             user.setEmail(userDto.getEmail());
             user.setAuthorities(getRolesFromRoleNames(userDto.getRoles()));
+            user.getFuncionario().setNumberPhone(userDto.getNumberPhone());
+            user.getFuncionario().setPosition(userDto.getPosition());
+            user.getFuncionario().setFirtsName(userDto.getFirstName());
+            user.getFuncionario().setLastName(userDto.getLastName());
             user.setEnabled(userDto.isEnabled());
 
             user = userRepository.save(user);
@@ -117,10 +130,10 @@ public class UserServiceImpl implements IUserService {
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 
             System.out.println("=============" + response);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 
         }
 
-        return null;
     }
 
     /**
@@ -142,7 +155,7 @@ public class UserServiceImpl implements IUserService {
         // Itera a través de la lista de RoleDto.
         for (RoleDto roleDto : roleDtos) {
             // Busca un objeto Role en la base de datos por su nombre.
-            Role role = roleRepository.findByAuthority(roleDto.getNameRole())
+            Role role = roleRepository.findByAuthority(roleDto.getAuthority())
                     .orElseThrow(() -> new RoleNoExistsException(
                             "El rol asignado al usuario no existe en la base de datos"));
 
@@ -159,9 +172,10 @@ public class UserServiceImpl implements IUserService {
 
         try {
 
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.DESC, "id"));
 
             Page<User> users = userRepository.findAll(pageable);
+            System.out.println("users=============GetALLUSER=======" + users.getContent().toString());
 
             log.info(users.getContent().toString());
 
@@ -191,25 +205,22 @@ public class UserServiceImpl implements IUserService {
 
         try {
 
-            if (userRepository.existsByEmail(registerUserRequest.email())) {
+            if (userRepository.existsByEmail(registerUserRequest.getEmail())) {
 
                 throw new UserAlreadyExistsException(
-                        "El correo electrónico '" + registerUserRequest.email() + "' ya está en uso.");
+                        "El correo electrónico '" + registerUserRequest.getEmail() + "' ya está en uso.");
 
             }
 
-            // Se verifica si el rol que se va asiganar existe
-            Role role = roleRepository.findByAuthority(registerUserRequest.role())
-                    .orElseThrow(
-                            () -> new RoleNoExistsException(
-                                    "El role asiganddo al usuario no existe en la base de datos"));
+            Set<Role> roles = getRolesFromRoleNames(registerUserRequest.getRoles());
 
             // Se envia el correo al usuario con las credenciales
             if (!eventListener.sendCredencial(registerUserRequest)) {
                 log.info("mail no enviado");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se pudo enviar el correo");
             }
 
-            String encodedPassword = encodePassword(registerUserRequest.password());
+            String encodedPassword = KeyGeneratorUtil.encryptString(registerUserRequest.getPassword());
 
             // Set<Role> authorities = new HashSet<>();
 
@@ -218,33 +229,31 @@ public class UserServiceImpl implements IUserService {
             Funcionario funcionarioEntity = new Funcionario();
 
             // valida si el codeAdmin es vacio o no
-            // userRoles.setAuthority( registerUserRequest.codeAdmin() == null ?
+            // userRoles.setAuthority( registerUserRequest.codeAdmin() == nulls ?
             // Roles.FUNCIONARIO:Roles.ADMIN);
 
             // authorities.add(role);
 
-            applicationUser.setFullname(registerUserRequest.firstName() + " " + registerUserRequest.lastName());
+            applicationUser.setFirstName(registerUserRequest.getFirstName());
+            applicationUser.setLastName(registerUserRequest.getLastName());
             applicationUser.setPassword(encodedPassword);
             // applicationUser.setAuthorities(authorities);
-            applicationUser.addRole(role);
-            applicationUser.setEmail(registerUserRequest.email());
-            applicationUser.setEnabled(registerUserRequest.isEnableEmail());
-            funcionarioEntity.setFirtsName(registerUserRequest.firstName());
-            funcionarioEntity.setLastName(registerUserRequest.lastName());
-            funcionarioEntity.setNumberPhone(registerUserRequest.numberPhone());
-            funcionarioEntity.setPosition(registerUserRequest.position());
+            applicationUser.setAuthorities(roles);
+            applicationUser.setEmail(registerUserRequest.getEmail());
+            applicationUser.setEnabled(registerUserRequest.getEnabled());
+            funcionarioEntity.setFirtsName(registerUserRequest.getFirstName());
+            funcionarioEntity.setLastName(registerUserRequest.getLastName());
+            funcionarioEntity.setNumberPhone(registerUserRequest.getNumberPhone());
+            funcionarioEntity.setPosition(registerUserRequest.getPosition());
+
+            applicationUser.setFuncionario(funcionarioEntity);
+            funcionarioEntity.setUser(applicationUser);
 
             applicationUser = userRepository.save(applicationUser);
 
-            funcionarioEntity.setUser(applicationUser);
-
-            funcionarioRepository.save(funcionarioEntity);
-
             return UserToRegistrationResponse.INSTANCE.apply(applicationUser);
 
-        } catch (
-
-        DataAccessException e) {
+        } catch (DataAccessException e) {
 
             Map<String, Object> response = new HashMap<>();
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
@@ -253,6 +262,14 @@ public class UserServiceImpl implements IUserService {
         }
 
         return null;
+    }
+
+    private boolean verificarPassword(String password, String passwordEncriptado) {
+
+        String passswordUserEncript = KeyGeneratorUtil.decryptString(passwordEncriptado);
+        System.out.println("password: " + passswordUserEncript);
+        System.out.println("passwordEncriptado: " + passwordEncriptado);
+        return passswordUserEncript.equals(password);
     }
 
     @Override
@@ -327,7 +344,7 @@ public class UserServiceImpl implements IUserService {
     public boolean deleteUser(RegistrationRequest userRequest) {
 
         try {
-            User user = userRepository.findByEmail(userRequest.email()).orElseThrow(
+            User user = userRepository.findByEmail(userRequest.getEmail()).orElseThrow(
                     () -> new RoleNoExistsException(
                             "Usuario no encotrado"));
 

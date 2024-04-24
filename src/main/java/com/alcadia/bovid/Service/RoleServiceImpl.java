@@ -6,9 +6,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.alcadia.bovid.Exception.RoleNoExistsException;
+import com.alcadia.bovid.Exception.UserAlreadyExistsException;
 import com.alcadia.bovid.Models.Dto.RoleDto;
 import com.alcadia.bovid.Models.Entity.Role;
 import com.alcadia.bovid.Repository.Dao.IRoleRepository;
@@ -24,7 +27,7 @@ public class RoleServiceImpl implements IRoleService {
     private final IRoleRepository roleRepository;
 
     @Override
-    public RoleDto creatRele(RoleDto roleDto) {
+    public RoleDto createRole(RoleDto roleDto) {
 
         try {
 
@@ -37,7 +40,7 @@ public class RoleServiceImpl implements IRoleService {
 
             roleSave.setAuthority(roleDto.getAuthority());
             roleSave.setDescription(roleDto.getDescription());
-            roleSave.setStatus(true);
+            roleSave.setStatus(roleDto.isStatus());
             roleSave.setCodRole(roleDto.getCodRole());
 
             roleSave = roleRepository.save(roleSave);
@@ -61,7 +64,7 @@ public class RoleServiceImpl implements IRoleService {
 
         try {
 
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Direction.ASC, "authority"));
 
             Page<Role> roles = roleRepository.findAll(pageable);
 
@@ -118,18 +121,22 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public RoleDto updateRole(RoleDto newRole) {
 
+   
+        Role roleEntity;
+
         try {
 
-            Optional<Role> roleEntity = roleRepository.findByAuthority(newRole.getOldNameRole());
+           
 
-            if (roleEntity.isEmpty()) {
-                throw new RoleNoExistsException(
-                        "El role asiganddo al usuario no existe en la base de datos");
-            }
+            roleEntity = roleRepository.findById(newRole.getId()).orElseThrow(
+                    () -> new RoleNoExistsException("El rol no existe en la base de datos"));
 
-            roleEntity.get().setAuthority(newRole.getNameRole());
+            roleEntity.setAuthority(newRole.getAuthority());
+            roleEntity.setCodRole(newRole.getCodRole());
+            roleEntity.setDescription(newRole.getDescription());
+            roleEntity.setStatus(newRole.isStatus());
 
-            Role Entity = roleRepository.save(roleEntity.get());
+            Role Entity = roleRepository.save(roleEntity);
             RoleDto roleDto = RoleMapper.INSTANCE.apply(Entity);
             return roleDto;
 
@@ -139,9 +146,11 @@ public class RoleServiceImpl implements IRoleService {
             System.err.println("Mensaje de la excepción: " + e.getMessage() +
                     ", Causa raíz (si existe): " + e.getCause() +
                     ", Nombre de la clase de la excepción: " + e.getClass().getName());
+
+                    throw new UserAlreadyExistsException(e.getMessage());
         }
 
-        return null;
+    
     }
 
     @Override
@@ -149,16 +158,14 @@ public class RoleServiceImpl implements IRoleService {
 
         try {
 
-            Optional<Role> roleEntity = roleRepository.findByAuthority(role.getNameRole());
+            Optional<Role> roleEntity = roleRepository.findByAuthority(role.getAuthority());
 
             if (roleEntity.isEmpty()) {
                 throw new RoleNoExistsException("El rol  no existe en la base de datos");
             }
 
-       
-            
             roleEntity.get().setStatus(role.isStatus());
-            
+
             roleRepository.save(roleEntity.get());
 
             return "success role isenable: " + role.isStatus();

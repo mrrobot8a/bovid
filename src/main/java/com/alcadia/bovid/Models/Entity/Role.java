@@ -1,15 +1,16 @@
 package com.alcadia.bovid.Models.Entity;
 
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,6 +25,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,43 +51,40 @@ public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer roleId;
-    
-    @Column(name = "cod_role", unique = true , length = 80)
+    private Long roleId;
+     
+
+    @Column(name = "cod_role", unique = true, length = 80)
     private String codRole;
 
-    @Column(name = "role", unique = true , length = 35)
+    @Column(name = "role", unique = true, length = 35)
     private String authority;
 
-    @Column(name = "description"  , length = 255)
+    @Column(name = "description", length = 150)
     private String description;
-    
+
     @Column(name = "status")
     private Boolean status;
-    
-  
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "fecha_creacion")
     private Date fechaCreacion;
 
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
-
-
-    
 
     @Override
     public String getAuthority() {
         return this.authority;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JsonBackReference
     @JoinTable(name = "user_role_junction", joinColumns = { @JoinColumn(name = "role_id") }, inverseJoinColumns = {
             @JoinColumn(name = " user_id") })
+    @Transient
     private Set<User> users = new HashSet<>();
 
     // public void addUser(User user) {
@@ -97,7 +96,7 @@ public class Role implements GrantedAuthority {
         for (User user : users) {
             // Paso 2: Elimina el rol actual (this) de la lista de autoridades del usuario.
             user.getAuthorities().remove(this);
-        } 
+        }
 
         // Paso 3: Una vez que se ha eliminado el rol de todos los usuarios,
         // vacía la colección de usuarios para reflejar los cambios en la relación.

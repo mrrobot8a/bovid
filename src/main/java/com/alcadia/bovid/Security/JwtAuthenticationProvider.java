@@ -1,9 +1,7 @@
 package com.alcadia.bovid.Security;
 
-
 import java.util.HashMap;
 import java.util.HashSet;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,16 +13,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.Authentication;
 
-
 import com.alcadia.bovid.Exception.InvalidVerificationTokenException;
 import com.alcadia.bovid.Models.Dto.RoleDto;
 import com.alcadia.bovid.Models.Dto.UserDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase encargada de la creacion y validacion de jwt para el inicio de sesion
  * de un Usuario
  */
+@Slf4j
 @Component
 public class JwtAuthenticationProvider {
 
@@ -41,8 +41,9 @@ public class JwtAuthenticationProvider {
      * 
      * @param customerJwt Cliente a utilizar en la creacion del jwt
      * @return Jwt creado
+     * @throws JsonProcessingException
      */
-    public String createToken(UserDto customerJwt) {
+    public String createToken(UserDto customerJwt) throws JsonProcessingException {
 
         String tokenCreated = jwtService.createToken(customerJwt);
 
@@ -89,12 +90,79 @@ public class JwtAuthenticationProvider {
             return new UsernamePasswordAuthenticationToken(exists, token, rolesAndAuthorities);
 
         } catch (Exception e) {
-         
+            log.debug(token + " no valido:" + e.getMessage());
             return null;
 
             // throw new CustomerNotExistException("Token no valido:" + e.getMessage());
         }
 
+    }
+
+    public boolean validateToken(String token) throws JsonProcessingException {
+        try {
+
+            if (jwtService.validateFirma(token) != null)
+                return false;
+            if (validatetokenInlistToken(token) != null)
+                return false;
+            if (jwtService.validateToken(token))
+                return false;
+
+            return true;
+            
+        } catch (Exception e) {
+            log.info("error provider Jwt " + e.getMessage());
+            throw e;
+        }
+
+    }
+
+    public UserDto getUserDto(String token) throws JsonProcessingException {
+        try {
+            UserDto userDto = jwtService.getUserDto(token);
+            return userDto;
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
+
+    public String refresToken(String token) throws JsonProcessingException {
+        try {
+            UserDto userDto = jwtService.getUserDto(token);
+
+            if (deleteToken(token).equals(" sesion cerrada")) {
+
+                return createToken(userDto);
+            }
+            return "";
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+
+    }
+
+    // validar token si existe en la lista blanca
+    public String validatetokenInlistToken(String jwt) {
+
+        if (listToken.containsKey(jwt)) {
+            return null;
+        }
+        
+        return "sesion cerrada";
+    }
+
+    public boolean validateIsEnableEmail(String token) {
+
+        UserDto exists = listToken.get(token);
+
+        if (exists == null) {
+            throw new BadCredentialsException("Usuario no  tiene cuenta activa ");
+        }
+
+        return exists.isEnabled();
     }
 
     //
@@ -103,22 +171,13 @@ public class JwtAuthenticationProvider {
         if (!listToken.containsKey(jwt)) {
 
             throw new InvalidVerificationTokenException(
-                    "token no existe , el usuario  ya cerro session o no ha iniciado ", null, HttpStatus.BAD_REQUEST);
+                    "token no existe , el usuario  ya cerro session");
 
         }
 
         listToken.remove(jwt);
 
         return " sesion cerrada";
-    }
-
-    public String validatetokenInlistToken(String jwt) {
-
-        if (!listToken.containsKey(jwt)) {
-            return "sesion cerrada";
-        }
-        return null;
-
     }
 
 }

@@ -1,19 +1,16 @@
 package com.alcadia.bovid.Exception;
 
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
-import java.net.http.HttpHeaders;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,15 +27,15 @@ public class RegistrationExceptionHandler {
         return errors;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public Map<String, String> userNotFound(UserAlreadyExistsException ex) {
+    public Map<String, String> userDataConflict(UserAlreadyExistsException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
         return error;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(InvalidVerificationTokenException.class)
     public Map<String, String> tokenNotFound(InvalidVerificationTokenException ex) {
         Map<String, String> error = new HashMap<>();
@@ -61,7 +58,6 @@ public class RegistrationExceptionHandler {
         error.put("error", ex.getMessage());
         return error;
     }
- 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(PasswordIncorrectException.class)
@@ -70,7 +66,6 @@ public class RegistrationExceptionHandler {
         error.put("error", ex.getMessage());
         return error;
     }
-
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MailSendException.class)
@@ -109,6 +104,7 @@ public class RegistrationExceptionHandler {
     public Map<String, String> FtpErrors(FtpErrors ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        error.put("statusCode", ex.getHttpStatus().toString());
         return error;
     }
 
@@ -121,7 +117,7 @@ public class RegistrationExceptionHandler {
         error.put("message", ex.getMessage());
         return error;
     }
-    
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(TokenExpiredException.class)
     public Map<String, String> handleTokenExpiredRequest(TokenExpiredException ex) {
@@ -131,6 +127,16 @@ public class RegistrationExceptionHandler {
         error.put("message", ex.getMessage());
         return error;
     }
+
+    // @ResponseStatus(HttpStatus.BAD_REQUEST)
+    // @ExceptionHandler(InvalidVerificationTokenException.class)
+    // public Map<String, String> handleInvalidVerificationTokenException(InvalidVerificationTokenException ex) {
+
+    //     Map<String, String> error = new HashMap<>();
+    //     error.put("error", "Solicitud inválida");
+    //     error.put("message", ex.getMessage());
+    //     return error;
+    // }
     // @ExceptionHandler(JWTVerificationException.class)
     // public ResponseEntity<Object>
     // handleJWTVerificationException(JWTVerificationException ex) {

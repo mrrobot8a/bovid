@@ -7,4 +7,5 @@ import com.alcadia.bovid.Models.Entity.SupportDocument;
 public interface ISupportDocumentsRepository  extends JpaRepository<SupportDocument,Long>{
 
     boolean existsByUrlFile(String urlFile);
+    boolean existsByFileName(String fileName);
 }

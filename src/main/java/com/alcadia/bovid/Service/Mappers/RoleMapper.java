@@ -20,18 +20,28 @@ public enum RoleMapper implements Function<Role, RoleDto> {
 
         if (roleEntity != null) {
             RoleDto roleDto = new RoleDto(
-                    null,
-                    null,
+                    roleEntity.getRoleId(),
                     roleEntity.getCodRole(),
-                    roleEntity.getStatus(),
                     roleEntity.getDescription(),
                     roleEntity.getAuthority(),
-                    null
-
-            );
+                    roleEntity.getStatus());
 
             return roleDto;
 
+        }
+        return null;
+    }
+   
+    public Role roleDtoToRole(RoleDto roleDto) {
+
+        if (roleDto != null) {
+            Role roleEntity = new Role();
+            roleEntity.setAuthority(roleDto.getAuthority());
+            roleEntity.setCodRole(roleDto.getCodRole());
+            roleEntity.setDescription(roleDto.getDescription());
+            roleEntity.setStatus(roleDto.isStatus());
+
+            return roleEntity;
         }
         return null;
     }
@@ -41,14 +51,14 @@ public enum RoleMapper implements Function<Role, RoleDto> {
         if (roles != null) {
             List<RoleDto> roleDtos = roles.getContent()
                     .stream()
-                    .map(roleEntity -> new RoleDto(null,
-                            null,
+                    .map(roleEntity -> new RoleDto(roleEntity.getRoleId(),
                             roleEntity.getCodRole(),
                             roleEntity.getStatus(),
                             roleEntity.getDescription(),
                             roleEntity.getAuthority(),
                             roleEntity.getUsers().stream()
-                                    .map(user -> new UserDto(user.getFullname(), user.getEmail(), null))
+                                    .map(user -> new UserDto(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(),
+                                            null, null, user.getPassword(), null, false))
                                     .collect(Collectors.toList())))
                     .collect(Collectors.toList());
 
@@ -61,14 +71,14 @@ public enum RoleMapper implements Function<Role, RoleDto> {
 
         if (roles != null) {
             List<RoleDto> roleDtos = roles.stream()
-                    .map(roleEntity -> new RoleDto(null,
-                            null,
+                    .map(roleEntity -> new RoleDto(roleEntity.getRoleId(),
                             roleEntity.getCodRole(),
                             roleEntity.getStatus(),
                             roleEntity.getDescription(),
                             roleEntity.getAuthority(),
                             roleEntity.getUsers().stream()
-                                    .map(user -> new UserDto(user.getFullname(), user.getEmail(), null))
+                                    .map(user -> new UserDto(user.getId(),user.getFirstName(), user.getLastName(), user.getEmail(),
+                                            null, null, user.getPassword(), null, false))
                                     .collect(Collectors.toList())))
                     .collect(Collectors.toList());
 
@@ -83,6 +93,9 @@ public enum RoleMapper implements Function<Role, RoleDto> {
                     .map(role -> {
                         Role roleEntity = new Role();
                         roleEntity.setAuthority(role.getAuthority());
+                        roleEntity.setCodRole(role.getCodRole());
+                        roleEntity.setDescription(role.getDescription());
+                        roleEntity.setStatus(role.isStatus());
                         return roleEntity;
                     })
 

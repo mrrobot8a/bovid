@@ -7,14 +7,14 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_marcaganaderaTest?useSSL=false
-    username: alcaldia
-    password: Amdin-1230
+    username: root
+    password: sasa
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
     hibernate:
-      ddl-auto:  update
+      ddl-auto: update
       
   security:
     user:
@@ -74,11 +74,14 @@ servlet:
 # Max Request Size
     max-request-size: 700KB
 
-## File Storage Properties
+# File Storage Properties
   file:
     upload-dir: ./uploads
 
-# Configuración de CORS
+# Configuración clave secreta para encriptar strings en la aplicación (Contraseñas, etc)
+encrypt:
+  key: "c!_E#KGo^A-lbk?"
+  iv: "X/rjq0lB/RYLwBzkqbAuSA=="
 
 
 
