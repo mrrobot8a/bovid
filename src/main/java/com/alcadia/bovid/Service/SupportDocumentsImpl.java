@@ -107,15 +107,16 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
                 log.error(errorMessage.toString());
                 throw new FtpErrors(errorMessage);
             }
-             
-            String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
-             
+
+            String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS
+                    : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
+
             ftpServiceimpl.connectToFTP();
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
             InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
-            ftpServiceimpl.disconnectFTP();
+
             return fileResource;
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
@@ -125,6 +126,13 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
 
+        } catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al descargar el archivo: " + e.getMessage());
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+        } finally {
+            ftpServiceimpl.disconnectFTP();
         }
 
     }
