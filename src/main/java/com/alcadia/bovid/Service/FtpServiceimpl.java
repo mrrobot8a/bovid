@@ -138,14 +138,12 @@ public class FtpServiceimpl implements IFtpService {
         try {
 
             inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
-            
+
             return inputStream;
 
         } catch (FtpErrors e) {
             throw e;
         }
-
-        
 
     }
 
@@ -161,7 +159,7 @@ public class FtpServiceimpl implements IFtpService {
                 throw new FtpErrors(errorMessage);
             }
         });
-
+        future.join();
         return future;
     }
 
