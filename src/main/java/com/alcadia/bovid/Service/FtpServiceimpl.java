@@ -142,7 +142,7 @@ public class FtpServiceimpl implements IFtpService {
                 log.error("EROOR DESDE LA CLASEFTPSERVICE Ftp", errorMessage.toString());
                 throw new FtpErrors(errorMessage);
             }
-            log.info("Archivo descargado correctamente");
+            log.info("Archivo descargado correctamente"+inputStream.available() + " bytes.");
             return inputStream;
         } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,

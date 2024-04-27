@@ -115,6 +115,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
+            log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
             InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
 
             return fileResource;
