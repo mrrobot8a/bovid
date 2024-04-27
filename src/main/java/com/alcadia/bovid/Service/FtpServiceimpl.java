@@ -159,10 +159,7 @@ public class FtpServiceimpl implements IFtpService {
                 throw new FtpErrors(errorMessage);
             }
         });
-        future.exceptionally(ex -> {
-            log.error("Error al descargar archivo del servidor FTP", ex);
-            return null;
-        });
+        future.join();
         return future;
     }
 

@@ -119,6 +119,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
           
             
             ftpServiceimpl.disconnectFTP();
+            fileInputStreamFtp.close(); // Cierra el InputStream después de usarlo
             return fileInputStreamFtp;
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
