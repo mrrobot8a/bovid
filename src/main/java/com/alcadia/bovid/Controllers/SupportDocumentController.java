@@ -93,10 +93,12 @@ public class SupportDocumentController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
             }
         } catch (IOException e) {
+            log.error("Error al descargar el archivo", e.getMessage());
             // Maneja cualquier excepción de E/S que pueda ocurrir durante la descarga.
             String mensaje = "Error al descargar el archivo: " + e.getMessage();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
         } catch (Exception e) {
+            log.error("Error al descargar el archivo", e.getMessage());
             // Maneja cualquier otra excepción que pueda ocurrir durante la descarga.
             String mensaje = "Error al descargar el archivo: " + e.getMessage();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
