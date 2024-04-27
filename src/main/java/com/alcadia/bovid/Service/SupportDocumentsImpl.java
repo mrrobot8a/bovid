@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
@@ -120,6 +121,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
                     folderSearch);
             log.info("fileInputStreamFtp " + fileInputStreamFtp);
             if (fileInputStreamFtp != null) {
+                byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
                 fileInputStreamFtp.close();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
@@ -127,10 +129,10 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
                 headers.setCacheControl("no-cache, no-store, must-revalidate");
                 headers.setPragma("no-cache");
 
-                return new ResponseEntity<>(fileInputStreamFtp, headers, HttpStatus.OK);
+                return ResponseEntity.ok().headers(headers).body(bytes);
             }
 
-            ftpServiceimpl.disconnectFTP();
+         
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
@@ -140,6 +142,9 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
 
+        }finally {
+            ftpServiceimpl.disconnectFTP();
+        
         }
 
     }
