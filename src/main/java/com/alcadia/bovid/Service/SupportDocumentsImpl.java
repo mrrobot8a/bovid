@@ -117,7 +117,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
                     folderSearch);
             log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
             InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
-
+            log.info("Archivo descargado correctamente: " + fileResource.contentLength() + " bytes.");
             return fileResource;
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
