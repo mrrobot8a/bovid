@@ -118,7 +118,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
           
             
-            ftpServiceimpl.disconnectFTP();
+            
             fileInputStreamFtp.close(); // Cierra el InputStream después de usarlo
             return fileInputStreamFtp;
         } catch (FtpErrors ftpErrors) {
