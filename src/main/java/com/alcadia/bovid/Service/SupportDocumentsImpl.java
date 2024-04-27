@@ -99,6 +99,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             throws IOException, SocketException, java.io.IOException {
 
         try {
+
             if (!supportDocumentsRepository.existsByFileName(fileName)
                     && !fileName.toLowerCase().endsWith(".png")) {
                 ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_FOUND,
@@ -112,20 +113,28 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
             ftpServiceimpl.connectToFTP();
             // ftpServiceimpl.getallFiles();
-            try (InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName, folderSearch)) {
-                log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
-                InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
-                log.info("Archivo descargado correctamente: " + fileResource.contentLength() + " bytes.");
-                return fileResource;
-            } finally {
-                ftpServiceimpl.disconnectFTP();
-            }
+            InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
+                    folderSearch);
+            log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
+            InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
+            log.info("Archivo descargado correctamente: " + fileResource.contentLength() + " bytes.");
+            ftpServiceimpl.disconnectFTP();
+            return fileResource;
+        } catch (FtpErrors ftpErrors) {
+            System.out.println(ftpErrors.getMessage());
+            log.info("ftpErrors " + ftpErrors.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_FOUND,
+                    "No existe el archivo en la base de datos");
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+
         } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error al descargar el archivo: " + e.getMessage());
-            log.error(errorMessage.toString(), e); // Log the exception stack trace
+            log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
         }
+
     }
 
     @Transactional(rollbackOn = { FtpErrors.class, IOException.class, Exception.class })

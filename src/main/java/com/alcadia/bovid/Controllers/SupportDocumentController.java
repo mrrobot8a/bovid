@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,10 +22,8 @@ import com.alcadia.bovid.Service.UserCase.ISupportDocumentsService;
 import io.micrometer.common.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/admin/support-document")
 public class SupportDocumentController {
@@ -64,44 +61,44 @@ public class SupportDocumentController {
 
     }
 
-    @SuppressWarnings("unused")
-    @GetMapping(path = "/ver-pdf/{filename:.+}", produces = { MediaType.APPLICATION_PDF_VALUE,
-            MediaType.IMAGE_PNG_VALUE })
-    public ResponseEntity<?> verPDF(@PathVariable("filename") String fileName) {
+    @GetMapping(path = "/ver-pdf/{filename:.+}", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<?> verPDF(@PathVariable("filename") String fileName)
+            throws com.itextpdf.io.exceptions.IOException, IllegalStateException, SocketException, IOException {
         try {
-            // Verifica si el nombre del archivo termina con ".pdf" o ".png"
+
+            // Verifica si el nombre del archivo termina con ".pdf"
             if (!fileName.toLowerCase().endsWith(".pdf") && !fileName.toLowerCase().endsWith(".png")) {
                 throw new InvalidPdfRequestException("El archivo solicitado no es válido.");
             }
 
-            // Utiliza tu servicio FTPService para descargar el archivo desde el servidor
-            // FTP.
-            Resource fileContent = supportDocumentsService.download(fileName);
-
-            log.info("Archivo descargado correctamente: " + fileContent.contentLength() + " bytes.");
-            if (fileContent != null) {
+            // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
+            // servidor FTP.
+            byte[] pdfContenido = supportDocumentsService.download(fileName).getInputStream().readAllBytes();
+              
+            if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
-                headers.setContentDisposition(ContentDisposition.builder("attachment").filename(fileName).build());
+                headers.setContentDispositionFormData("attachment", fileName);
                 headers.setCacheControl("no-cache, no-store, must-revalidate");
                 headers.setPragma("no-cache");
-                log.info("Archivo descargado correctamente: " + fileContent.contentLength() + " bytes.");
-                return ResponseEntity.ok().headers(headers).body(fileContent);
+
+                return new ResponseEntity<>(pdfContenido, headers, HttpStatus.OK);
             } else {
                 // Si no se pudo descargar el archivo, devuelve un mensaje de error.
-                String mensaje = "No se encontró el archivo en el servidor.";
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
+                Map<String, Object> response = new HashMap<>();
+                response.put("mensaje", "No se encontró el archivo PDF en el servidor.");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
         } catch (IOException e) {
-            log.error("Error al descargar el archivoIO", e.getMessage());
             // Maneja cualquier excepción de E/S que pueda ocurrir durante la descarga.
-            String mensaje = "Error al descargar el archivo: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
-        } catch (Exception e) {
-            log.error("Error al descargar el archivoEX", e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e){
             // Maneja cualquier otra excepción que pueda ocurrir durante la descarga.
-            String mensaje = "Error al descargar el archivo: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
