@@ -94,6 +94,11 @@ public class SupportDocumentController {
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e){
+            // Maneja cualquier otra excepción que pueda ocurrir durante la descarga.
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -142,6 +142,7 @@ public class FtpServiceimpl implements IFtpService {
                 log.error("EROOR DESDE LA CLASEFTPSERVICE Ftp", errorMessage.toString());
                 throw new FtpErrors(errorMessage);
             }
+            log.info("Archivo descargado correctamente");
             return inputStream;
         } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -150,27 +151,6 @@ public class FtpServiceimpl implements IFtpService {
             throw new FtpErrors(errorMessage);
         }
 
-        // metodo para guardar los archivos en una carpeta del sistema
-        // try {
-        // File file = new File(ftpRelativePath);
-        // FileOutputStream fos = new FileOutputStream(file);
-
-        // byte[] buffer = new byte[1024];
-        // int bytesRead;
-        // while ((bytesRead = inputStream.read(buffer)) != -1) {
-        // fos.write(buffer, 0, bytesRead);
-        // }
-
-        // fos.close();
-        // inputStream.close();
-
-        // return file;
-        // } catch (Exception e) {
-        // ErrorMessage errorMessage = new ErrorMessage(-6, "No se pudo obtener la
-        // referencia al archivo descargado.");
-        // log.error(errorMessage.toString());
-        // throw newFtpErrors(errorMessage);
-        // }
     }
 
     @Override
