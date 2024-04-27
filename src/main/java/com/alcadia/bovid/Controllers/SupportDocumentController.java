@@ -74,7 +74,7 @@ public class SupportDocumentController {
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
             byte[] pdfContenido = supportDocumentsService.download(fileName).getInputStream().readAllBytes();
-              
+
             if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
@@ -90,15 +90,17 @@ public class SupportDocumentController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
         } catch (IOException e) {
-            // Maneja cualquier excepción de E/S que pueda ocurrir durante la descarga.
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e){
-            // Maneja cualquier otra excepción que pueda ocurrir durante la descarga.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response);
+        } catch (Exception e) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response);
         }
     }
 
