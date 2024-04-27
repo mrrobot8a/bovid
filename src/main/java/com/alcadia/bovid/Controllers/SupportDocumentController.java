@@ -73,7 +73,7 @@ public class SupportDocumentController {
 
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
-            byte[] pdfContenido = supportDocumentsService.download(fileName).getInputStream().readAllBytes();
+            Resource pdfContenido = supportDocumentsService.download(fileName);
 
             if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
