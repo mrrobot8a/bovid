@@ -132,19 +132,18 @@ public class FtpServiceimpl implements IFtpService {
 
     @Override
     public InputStream downloadFileFromFTP(String ftpRelativePath, String folder)
-            throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException {
-        InputStream inputStream;
-
+            throws FtpErrors, java.io.IOException {
         try {
-
-            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
-            this.disconnectFTP();
+            InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
+            ftpconnection.completePendingCommand(); // Confirma que el comando RETR se ha completado
+            ftpconnection.disconnect();
             return inputStream;
-
-        } catch (FtpErrors e) {
-            throw e;
+        } catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "No se pudo descargar el archivo.");
+            log.error(errorMessage.toString(), e);
+            throw new FtpErrors(errorMessage);
         }
-
     }
 
     private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
