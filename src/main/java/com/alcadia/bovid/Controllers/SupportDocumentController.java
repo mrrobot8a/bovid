@@ -76,8 +76,8 @@ public class SupportDocumentController {
 
             // Utiliza tu servicio FTPService para descargar el archivo desde el servidor
             // FTP.
-            Resource  fileContent = supportDocumentsService.download(fileName);
-            
+            Resource fileContent = supportDocumentsService.download(fileName);
+
             log.info("Archivo descargado correctamente: " + fileContent.contentLength() + " bytes.");
             if (fileContent != null) {
                 HttpHeaders headers = new HttpHeaders();
@@ -89,20 +89,17 @@ public class SupportDocumentController {
                 return ResponseEntity.ok().headers(headers).body(fileContent);
             } else {
                 // Si no se pudo descargar el archivo, devuelve un mensaje de error.
-                Map<String, Object> response = new HashMap<>();
-                response.put("mensaje", "No se encontró el archivo en el servidor.");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                String mensaje = "No se encontró el archivo en el servidor.";
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
             }
         } catch (IOException e) {
             // Maneja cualquier excepción de E/S que pueda ocurrir durante la descarga.
-            Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Error al descargar el archivo: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            String mensaje = "Error al descargar el archivo: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
         } catch (Exception e) {
             // Maneja cualquier otra excepción que pueda ocurrir durante la descarga.
-            Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Error al descargar el archivo: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            String mensaje = "Error al descargar el archivo: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
         }
     }
 
