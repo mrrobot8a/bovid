@@ -8,7 +8,10 @@ import java.util.List;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,7 +98,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public InputStream download(String fileName)
+    public ResponseEntity<?> download(String fileName)
             throws IOException, SocketException, java.io.IOException {
 
         try {
@@ -115,12 +118,20 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
-            log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
-          
-            
-            
-            fileInputStreamFtp.close(); // Cierra el InputStream después de usarlo
-            return fileInputStreamFtp;
+            log.info("fileInputStreamFtp " + fileInputStreamFtp);
+            if (fileInputStreamFtp != null) {
+                fileInputStreamFtp.close();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("attachment", fileName);
+                headers.setCacheControl("no-cache, no-store, must-revalidate");
+                headers.setPragma("no-cache");
+
+                return new ResponseEntity<>(fileInputStreamFtp, headers, HttpStatus.OK);
+            }
+
+            ftpServiceimpl.disconnectFTP();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
             log.info("ftpErrors " + ftpErrors.getMessage());
@@ -129,11 +140,6 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
 
-        } catch (Exception e) {
-            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error al descargar el archivo: " + e.getMessage());
-            log.error(errorMessage.toString());
-            throw new FtpErrors(errorMessage);
         }
 
     }

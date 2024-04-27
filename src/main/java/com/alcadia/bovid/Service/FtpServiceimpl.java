@@ -8,7 +8,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTP;
@@ -133,26 +132,32 @@ public class FtpServiceimpl implements IFtpService {
     @Override
     public InputStream downloadFileFromFTP(String ftpRelativePath, String folder)
             throws FtpErrors, java.io.IOException {
+        InputStream inputStream;
         try {
-            InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-            ftpconnection.completePendingCommand(); // Confirma que el comando RETR se ha completado
-            ftpconnection.disconnect();
+            inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
+
+            if (inputStream == null) {
+                ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "No se pudo descargar el archivo.");
+                log.error("EROOR DESDE LA CLASEFTPSERVICE Ftp", errorMessage.toString());
+                throw new FtpErrors(errorMessage);
+            }
+            log.info("Archivo descargado correctamente"+inputStream.available() + " bytes.");
             return inputStream;
         } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                     "No se pudo descargar el archivo.");
-            log.error(errorMessage.toString(), e);
+            log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
         }
+
     }
 
     private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
             throws FtpErrors, java.io.IOException {
         CompletableFuture<InputStream> future = CompletableFuture.supplyAsync(() -> {
             try {
-                InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-                ftpconnection.completePendingCommand();
-                return inputStream;
+                return ftpconnection.retrieveFileStream(folder + ftpRelativePath);
             } catch (Exception e) {
                 ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                         "No se pudo descargar el archivo.");
@@ -160,7 +165,7 @@ public class FtpServiceimpl implements IFtpService {
                 throw new FtpErrors(errorMessage);
             }
         });
-        future.join();
+
         return future;
     }
 

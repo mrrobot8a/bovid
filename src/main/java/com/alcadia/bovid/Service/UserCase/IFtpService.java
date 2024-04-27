@@ -2,7 +2,6 @@ package com.alcadia.bovid.Service.UserCase;
 
 import java.io.InputStream;
 import java.net.SocketException;
-import java.util.concurrent.ExecutionException;
 
 import com.alcadia.bovid.Exception.FtpErrors;
 
@@ -16,7 +15,7 @@ public interface IFtpService {
     void UploadMultipleFilesToFTP(InputStream[] files, String ftpHostDir, String[] serverFilename)
             throws FtpErrors, java.io.IOException;        
 
-    InputStream downloadFileFromFTP(String ftpRelativePath, String folder) throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException;
+    InputStream downloadFileFromFTP(String ftpRelativePath, String folder) throws FtpErrors, java.io.IOException;
 
     void getallFiles();
 

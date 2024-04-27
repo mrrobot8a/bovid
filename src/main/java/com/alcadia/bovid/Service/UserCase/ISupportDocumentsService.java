@@ -3,7 +3,7 @@ package com.alcadia.bovid.Service.UserCase;
 import java.io.InputStream;
 import java.net.SocketException;
 
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alcadia.bovid.Exception.FtpErrors;
@@ -25,6 +25,6 @@ public interface ISupportDocumentsService {
     void UploadMultipleFilesToFTP(MultipartFile[] imageMarcaGanadero, String ftpHostDir, String[] serverFilename)
             throws FtpErrors, java.io.IOException;  
 
-    public InputStream download(String filName) throws IOException, SocketException, java.io.IOException;
+    public ResponseEntity<?>download(String filName) throws IOException, SocketException, java.io.IOException;
 
 }

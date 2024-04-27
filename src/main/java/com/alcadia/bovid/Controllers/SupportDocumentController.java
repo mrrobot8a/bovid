@@ -73,22 +73,8 @@ public class SupportDocumentController {
 
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
-            Resource pdfContenido = (Resource) supportDocumentsService.download(fileName);
+            return supportDocumentsService.download(fileName);
 
-            if (pdfContenido != null) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
-                headers.setContentDispositionFormData("attachment", fileName);
-                headers.setCacheControl("no-cache, no-store, must-revalidate");
-                headers.setPragma("no-cache");
-
-                return new ResponseEntity<>(pdfContenido, headers, HttpStatus.OK);
-            } else {
-                // Si no se pudo descargar el archivo, devuelve un mensaje de error.
-                Map<String, Object> response = new HashMap<>();
-                response.put("mensaje", "No se encontró el archivo PDF en el servidor.");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
         } catch (IOException e) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
