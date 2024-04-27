@@ -64,6 +64,7 @@ public class SupportDocumentController {
 
     }
 
+    @SuppressWarnings("unused")
     @GetMapping(path = "/ver-pdf/{filename:.+}", produces = { MediaType.APPLICATION_PDF_VALUE,
             MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<?> verPDF(@PathVariable("filename") String fileName) {
@@ -75,17 +76,17 @@ public class SupportDocumentController {
 
             // Utiliza tu servicio FTPService para descargar el archivo desde el servidor
             // FTP.
-            byte[] fileContent = supportDocumentsService.download(fileName).getInputStream().readAllBytes();
+            Resource  fileContent = supportDocumentsService.download(fileName);
             
-
+            log.info("Archivo descargado correctamente: " + fileContent.contentLength() + " bytes.");
             if (fileContent != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
                 headers.setContentDisposition(ContentDisposition.builder("attachment").filename(fileName).build());
                 headers.setCacheControl("no-cache, no-store, must-revalidate");
                 headers.setPragma("no-cache");
-                log.info("Archivo descargado correctamente: " + fileContent.length + " bytes.");
-                return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
+                log.info("Archivo descargado correctamente: " + fileContent.contentLength() + " bytes.");
+                return ResponseEntity.ok().headers(headers).body(fileContent);
             } else {
                 // Si no se pudo descargar el archivo, devuelve un mensaje de error.
                 Map<String, Object> response = new HashMap<>();
