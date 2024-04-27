@@ -8,7 +8,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTP;
@@ -132,35 +131,26 @@ public class FtpServiceimpl implements IFtpService {
 
     @Override
     public InputStream downloadFileFromFTP(String ftpRelativePath, String folder)
-            throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException {
-        InputStream inputStream;
-
-        try {
-
-            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
-
-            return inputStream;
-
-        } catch (FtpErrors e) {
-            throw e;
-        }
-
-    }
-
-    private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
             throws FtpErrors, java.io.IOException {
-        CompletableFuture<InputStream> future = CompletableFuture.supplyAsync(() -> {
-            try {
-                return ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-            } catch (Exception e) {
+        InputStream inputStream;
+        try {
+            inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
+
+            if (inputStream == null) {
                 ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                         "No se pudo descargar el archivo.");
-                log.error(errorMessage.toString());
+                log.error("EROOR DESDE LA CLASEFTPSERVICE Ftp", errorMessage.toString());
                 throw new FtpErrors(errorMessage);
             }
-        });
-        future.join();
-        return future;
+            log.info("Archivo descargado correctamente"+inputStream.available() + " bytes.");
+            return inputStream;
+        } catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "No se pudo descargar el archivo.");
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+        }
+
     }
 
     @Override
