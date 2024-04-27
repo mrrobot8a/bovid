@@ -95,7 +95,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public InputStreamResource download(String fileName)
+    public InputStream download(String fileName)
             throws IOException, SocketException, java.io.IOException {
 
         try {
@@ -116,10 +116,10 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
             log.info("Archivo descargado correctamente: " + fileInputStreamFtp.available() + " bytes.");
-            InputStreamResource fileResource = new InputStreamResource(fileInputStreamFtp);
+          
             
             ftpServiceimpl.disconnectFTP();
-            return fileResource;
+            return fileInputStreamFtp;
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
             log.info("ftpErrors " + ftpErrors.getMessage());

@@ -45,7 +45,7 @@ public class SupportDocumentController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
-        Resource resource = supportDocumentsService.download(fileName);
+        Resource resource = (Resource) supportDocumentsService.download(fileName);
 
         if (resource == null) {
             response.put("objct", resource);
@@ -73,7 +73,7 @@ public class SupportDocumentController {
 
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
-            Resource pdfContenido = supportDocumentsService.download(fileName);
+            Resource pdfContenido = (Resource) supportDocumentsService.download(fileName);
 
             if (pdfContenido != null) {
                 HttpHeaders headers = new HttpHeaders();
