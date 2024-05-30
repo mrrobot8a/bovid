@@ -32,7 +32,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@slog4j
 @Transactional
 @Service
 public class FtpServiceimpl implements IFtpService {
