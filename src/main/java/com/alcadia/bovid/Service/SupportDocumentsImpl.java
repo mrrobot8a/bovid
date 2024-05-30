@@ -116,6 +116,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
                     : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
 
             ftpServiceimpl.connectToFTP();
+            log.info("fileInputStreamFtp primer paso : ");
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
