@@ -32,6 +32,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@slog4j
 @Transactional
 @Service
 public class FtpServiceimpl implements IFtpService {
@@ -138,6 +139,7 @@ public class FtpServiceimpl implements IFtpService {
         try {
 
             inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
+            log.info("Archivo descargado correctamente");
         
             return inputStream;
 

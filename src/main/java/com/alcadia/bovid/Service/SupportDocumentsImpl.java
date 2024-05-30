@@ -119,7 +119,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
-            log.info("fileInputStreamFtp " + fileInputStreamFtp);
+            log.info("fileInputStreamFtp : " + fileInputStreamFtp);
             if (fileInputStreamFtp != null) {
                 byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
                 fileInputStreamFtp.close();
