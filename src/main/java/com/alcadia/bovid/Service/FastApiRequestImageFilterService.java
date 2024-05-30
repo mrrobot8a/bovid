@@ -62,7 +62,7 @@ public class FastApiRequestImageFilterService {
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             // Enviar la solicitud POST a la API de FastAPI
-            String apiUrl = "https://6bf5-190-144-160-138.ngrok-free.app/upload/";
+            String apiUrl = "http://127.0.0.1:8800/upload/";
             ResponseEntity<String> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity,
                     String.class);
 
@@ -96,7 +96,7 @@ public class FastApiRequestImageFilterService {
 
     public String getRequestToFastAPI() {
         // URL del método de FastAPI
-        String apiUrl = "https://9612-190-144-160-138.ngrok-free.app/formularioFile/";
+        String apiUrl = "http://127.0.0.1:8800/formularioFile/";
 
         // Realizar la solicitud GET y obtener la respuesta como una cadena JSON
         String jsonResponse = restTemplate.getForObject(apiUrl, String.class);
