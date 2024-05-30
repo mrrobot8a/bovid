@@ -5,8 +5,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -29,12 +27,6 @@ import com.alcadia.bovid.Service.UserCase.ISupportDocumentsService;
 import com.alcadia.bovid.Service.Util.Utils;
 import com.itextpdf.io.exceptions.IOException;
 
-import org.apache.commons.io.IOUtils;
-
-
-import java.io.InputStream;
-import java.util.concurrent.CompletableFuture;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +39,6 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
     private final ISupportDocumentsRepository supportDocumentsRepository;
 
     private final IFtpService ftpServiceimpl;
-
-    
 
     @SuppressWarnings("null")
     @Override
@@ -107,58 +97,63 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
     }
 
-
-
+    @Override
     @Transactional(rollbackOn = Exception.class)
-    public CompletableFuture<ResponseEntity<?>> download(String fileName) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                if (!supportDocumentsRepository.existsByFileName(fileName) && !fileName.toLowerCase().endsWith(".png")) {
-                    throw new FtpErrors(new ErrorMessage(HttpStatus.NOT_FOUND, "No existe el archivo en la base de datos"));
-                }
+    public ResponseEntity<?> download(String fileName)
+            throws IOException, SocketException, java.io.IOException {
 
-                String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
+        try {
 
-                ftpServiceimpl.connectToFTP();
-                InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName, folderSearch);
-
-                if (fileInputStreamFtp != null) {
-                    byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
-                    fileInputStreamFtp.close();
-
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
-                    headers.setContentDispositionFormData("attachment", fileName);
-                    headers.setCacheControl("no-cache, no-store, must-revalidate");
-                    headers.setPragma("no-cache");
-
-                    return ResponseEntity.ok().headers(headers).body(bytes);
-                }
-
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            } catch (IOException | FtpErrors | java.io.IOException e) {
-                throw new RuntimeException("Error al descargar el archivo: " + e.getMessage());
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } finally {
-                try {
-                    ftpServiceimpl.disconnectFTP();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (FtpErrors e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (java.io.IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            if (!supportDocumentsRepository.existsByFileName(fileName)
+                    && !fileName.toLowerCase().endsWith(".png")) {
+                ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_FOUND,
+                        "No existe el archivo en la base de datos");
+                log.error(errorMessage.toString());
+                throw new FtpErrors(errorMessage);
             }
-            return null;
-        });
+
+            String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS
+                    : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
+
+            ftpServiceimpl.connectToFTP();
+            log.info("fileInputStreamFtp primer paso : ");
+            // ftpServiceimpl.getallFiles();
+            InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
+                    folderSearch);
+            log.info("fileInputStreamFtp : " + fileInputStreamFtp);
+            if (fileInputStreamFtp != null) {
+                byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
+                fileInputStreamFtp.close();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("attachment", fileName);
+                headers.setCacheControl("no-cache, no-store, must-revalidate");
+                headers.setPragma("no-cache");
+
+                return ResponseEntity.ok().headers(headers).body(bytes);
+            }
+
+         
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (FtpErrors ftpErrors) {
+            System.out.println(ftpErrors.getMessage());
+            log.info("ftpErrors " + ftpErrors.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.NOT_FOUND,
+                    "No existe el archivo en la base de datos");
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+
+        }catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al descargar el archivo: " + e.getMessage());
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+        }
+        finally {
+            ftpServiceimpl.disconnectFTP();
+        
+        }
+
     }
 
     @Transactional(rollbackOn = { FtpErrors.class, IOException.class, Exception.class })

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -63,7 +62,7 @@ public class SupportDocumentController {
     }
 
     @GetMapping(path = "/ver-pdf/{filename:.+}", produces = MediaType.APPLICATION_PDF_VALUE)
-    public CompletableFuture<ResponseEntity<?>> verPDF(@PathVariable("filename") String fileName)
+    public ResponseEntity<?> verPDF(@PathVariable("filename") String fileName)
             throws com.itextpdf.io.exceptions.IOException, IllegalStateException, SocketException, IOException {
         try {
 
@@ -75,18 +74,19 @@ public class SupportDocumentController {
             // Utiliza tu servicio FTPService para descargar el archivo PDF desde el
             // servidor FTP.
             return supportDocumentsService.download(fileName);
+
         } catch (IOException e) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
-            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response);
         } catch (Exception e) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Error al descargar el archivo PDF: " + e.getMessage());
-            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body(response);
         }
     }
 
