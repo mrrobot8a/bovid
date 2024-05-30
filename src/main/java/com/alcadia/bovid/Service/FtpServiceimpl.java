@@ -136,22 +136,23 @@ public class FtpServiceimpl implements IFtpService {
         InputStream inputStream;
 
         try {
-            log.info(folder + ftpRelativePath + "Descargando archivo...");
-            CompletableFuture<InputStream> future = downloadFileFromFTPAsync(ftpRelativePath, folder);
-            inputStream = future.get(); // Espera hasta que la operación asíncrona se complete
+
+            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
             log.info("Archivo descargado correctamente");
+        
             return inputStream;
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Error al descargar el archivo: " + e.getMessage());
-            throw new FtpErrors(new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error al descargar el archivo: " + e.getMessage()));
+
+        } catch (FtpErrors e) {
+            throw e;
         }
+
     }
 
     private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
             throws FtpErrors, java.io.IOException {
         CompletableFuture<InputStream> future = CompletableFuture.supplyAsync(() -> {
             try {
+                log.info("Archivo descargado correctamenteAsync");
                 InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
                 ftpconnection.completePendingCommand();
                 return inputStream;
@@ -162,7 +163,7 @@ public class FtpServiceimpl implements IFtpService {
                 throw new FtpErrors(errorMessage);
             }
         });
-
+        
         return future;
     }
 
