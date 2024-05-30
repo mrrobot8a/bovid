@@ -142,7 +142,13 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
 
-        }finally {
+        }catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error al descargar el archivo: " + e.getMessage());
+            log.error(errorMessage.toString());
+            throw new FtpErrors(errorMessage);
+        }
+        finally {
             ftpServiceimpl.disconnectFTP();
         
         }
