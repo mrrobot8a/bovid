@@ -62,7 +62,7 @@ public class SecurityConfiguration {
             public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:4200","http://localhost:5173/", "http://localhost:8000/","http://localhost:8000",
-                   "http://localhost:48496","https://bovid.site","https://bovid.site/","http://localhost:5037/","https://d2zpl8rr-5173.use2.devtunnels.ms"));
+                   "http://localhost:48496","https://bovid.site","https://bovid.site","https://bovid.site/","","http://localhost:5037/","https://d2zpl8rr-5173.use2.devtunnels.ms"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);
@@ -72,6 +72,7 @@ public class SecurityConfiguration {
             }
         };
     }
+    
    
 
 }
