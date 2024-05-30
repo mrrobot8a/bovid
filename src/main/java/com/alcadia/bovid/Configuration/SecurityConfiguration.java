@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-
 import java.util.Arrays;
 
 import com.alcadia.bovid.Exception.AccessDeniedHandlerException;
@@ -51,18 +50,18 @@ public class SecurityConfiguration {
                     auth.anyRequest().authenticated();
                 });
 
-    
-
         return http.build();
     }
-  
+
     private CorsConfigurationSource corsConfigurationSource() {
         return new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(Arrays.asList("http://localhost:5173","http://localhost:4200","http://localhost:5173/", "http://localhost:8000/","http://localhost:8000",
-                   "http://localhost:48496","https://8ae5-190-144-160-138.ngrok-free.app","https://bovid.site","https://bovid.site","https://bovid.site/","","http://localhost:5037/","https://d2zpl8rr-5173.use2.devtunnels.ms"));
+                config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:4200",
+                        "http://localhost:5173/", "http://localhost:8000/", "http://localhost:8000",
+                        "http://localhost:48496", "https://bovid.site/", "https://bovid.site", "http://bovid.site/",
+                        "http://bovid.site"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);
@@ -72,7 +71,5 @@ public class SecurityConfiguration {
             }
         };
     }
-    
-   
 
 }
