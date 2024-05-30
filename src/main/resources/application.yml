@@ -2,11 +2,6 @@
 server:
   port: 8000
   address: 0.0.0.0
-  ssl:
-    key-store-type: PKCS12
-    key-store: classpath:keystore.p12
-    key-store-password: bovidback
-    key-alias: your_alias
 
 # Configuración de la base de datos MySQL
 spring:
