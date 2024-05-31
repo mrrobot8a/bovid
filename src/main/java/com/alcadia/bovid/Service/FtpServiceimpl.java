@@ -164,13 +164,8 @@ public class FtpServiceimpl implements IFtpService {
                 this.ftpconnection.setFileType(FTP.BINARY_FILE_TYPE);
                 log.info("Descargando archivo de forma asíncrona");
                 InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-                log.info("Archivo descargado de forma asíncrona" + inputStream.toString());
-                if (ftpconnection.completePendingCommand()) {
-                    log.info("Archivo descargado correctamenteAsync");
-                    return inputStream;
-                } else {
-                    throw new IOException("No se pudo completar el comando FTP");
-                }
+                log.info("Archivo descargado de forma asíncrona" + inputStream.available());
+                return inputStream;
             } catch (Exception e) {
                 ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                         "No se pudo descargar el archivo.");
