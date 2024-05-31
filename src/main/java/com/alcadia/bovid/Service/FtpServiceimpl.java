@@ -138,8 +138,8 @@ public class FtpServiceimpl implements IFtpService {
         InputStream inputStream;
 
         try {
-            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get(30, TimeUnit.SECONDS); // Añadido
-                                                                                                            // timeout
+            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get(120, TimeUnit.SECONDS); // Añadido
+            inputStream.close(); // timeout
             log.info("Archivo descargado correctamente");
             return inputStream;
         } catch (TimeoutException e) {
@@ -159,8 +159,12 @@ public class FtpServiceimpl implements IFtpService {
             throws FtpErrors, java.io.IOException {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                log.info("Conectando al servidor FTP Async");
+                this.connectToFTP();
+                this.ftpconnection.setFileType(FTP.BINARY_FILE_TYPE);
                 log.info("Descargando archivo de forma asíncrona");
                 InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
+                log.info("Archivo descargado de forma asíncrona" + inputStream.toString());
                 if (ftpconnection.completePendingCommand()) {
                     log.info("Archivo descargado correctamenteAsync");
                     return inputStream;

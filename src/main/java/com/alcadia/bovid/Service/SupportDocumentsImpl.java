@@ -115,7 +115,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS
                     : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
 
-            ftpServiceimpl.connectToFTP();
+            
             log.info("fileInputStreamFtp primer paso : ");
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
