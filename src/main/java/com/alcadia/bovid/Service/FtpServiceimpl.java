@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTP;
@@ -132,39 +134,46 @@ public class FtpServiceimpl implements IFtpService {
 
     @Override
     public InputStream downloadFileFromFTP(String ftpRelativePath, String folder)
-            throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException {
+            throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException, TimeoutException {
         InputStream inputStream;
 
         try {
-
-            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
+            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get(30, TimeUnit.SECONDS); // Añadido
+                                                                                                            // timeout
             log.info("Archivo descargado correctamente");
-        
             return inputStream;
-
+        } catch (TimeoutException e) {
+            log.error("Timeout al descargar el archivo desde FTP");
+            throw new FtpErrors(
+                    new ErrorMessage(HttpStatus.REQUEST_TIMEOUT, "Timeout al descargar el archivo desde FTP"));
         } catch (FtpErrors e) {
             throw e;
+        } catch (Exception e) {
+            log.error("Error inesperado al descargar el archivo desde FTP", e);
+            throw new FtpErrors(new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error inesperado al descargar el archivo desde FTP"));
         }
-
     }
 
     private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
             throws FtpErrors, java.io.IOException {
-        CompletableFuture<InputStream> future = CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             try {
-                log.info("Archivo descargado correctamenteAsync");
+                log.info("Descargando archivo de forma asíncrona");
                 InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-                ftpconnection.completePendingCommand();
-                return inputStream;
+                if (ftpconnection.completePendingCommand()) {
+                    log.info("Archivo descargado correctamenteAsync");
+                    return inputStream;
+                } else {
+                    throw new IOException("No se pudo completar el comando FTP");
+                }
             } catch (Exception e) {
                 ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                         "No se pudo descargar el archivo.");
-                log.error(errorMessage.toString());
+                log.error(errorMessage.toString(), e);
                 throw new FtpErrors(errorMessage);
             }
         });
-        
-        return future;
     }
 
     @Override
