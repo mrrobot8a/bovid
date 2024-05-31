@@ -139,7 +139,7 @@ public class FtpServiceimpl implements IFtpService {
 
         try {
             inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get(120, TimeUnit.SECONDS); // Añadido
-            inputStream.close(); // timeout
+           
             log.info("Archivo descargado correctamente");
             return inputStream;
         } catch (TimeoutException e) {

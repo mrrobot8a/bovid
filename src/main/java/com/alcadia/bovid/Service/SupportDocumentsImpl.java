@@ -120,8 +120,8 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
-            log.info("fileInputStreamFtp : " + fileInputStreamFtp);
-            if (fileInputStreamFtp != null) {
+            log.info("fileInputStreamFtp : " + fileInputStreamFtp.available()+"$$");
+            {
                 byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
                 fileInputStreamFtp.close();
                 HttpHeaders headers = new HttpHeaders();
@@ -132,9 +132,6 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
                 return ResponseEntity.ok().headers(headers).body(bytes);
             }
-
-         
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (FtpErrors ftpErrors) {
             System.out.println(ftpErrors.getMessage());
             log.info("ftpErrors " + ftpErrors.getMessage());
