@@ -60,7 +60,9 @@ public class SecurityConfiguration {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:4200",
                         "http://localhost:5173/", "http://localhost:8000/", "http://localhost:8000",
-                        "http://localhost:48496", "https://bovid.site/", "https://bovid.site", "http://bovid.site/",
+                        "http://localhost:48496","https://665922d5497f3aaadbaaf8b0--melodic-halva-c4b1b1.netlify.app/",
+                        "https://665922d5497f3aaadbaaf8b0--melodic-halva-c4b1b1.netlify.app",
+                         "https://bovid.site/", "https://bovid.site", "http://bovid.site/",
                         "http://bovid.site"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
