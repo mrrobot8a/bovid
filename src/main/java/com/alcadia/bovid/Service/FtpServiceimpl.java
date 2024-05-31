@@ -8,7 +8,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.net.PrintCommandListener;
@@ -131,33 +130,41 @@ public class FtpServiceimpl implements IFtpService {
         future.join();
     }
 
+    @Override
     public InputStream downloadFileFromFTP(String ftpRelativePath, String folder)
-            throws FtpErrors, IOException, InterruptedException, ExecutionException {
+            throws FtpErrors, java.io.IOException, InterruptedException, ExecutionException {
+        InputStream inputStream;
+
         try {
-            return this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
-        } catch (ExecutionException | InterruptedException e) {
-            throw new IOException("Error downloading file from FTP", e);
+
+            inputStream = this.downloadFileFromFTPAsync(ftpRelativePath, folder).get();
+            log.info("Archivo descargado correctamente");
+        
+            return inputStream;
+
+        } catch (FtpErrors e) {
+            throw e;
         }
+
     }
 
-    public CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder) {
-        return CompletableFuture.supplyAsync(() -> {
+    private CompletableFuture<InputStream> downloadFileFromFTPAsync(String ftpRelativePath, String folder)
+            throws FtpErrors, java.io.IOException {
+        CompletableFuture<InputStream> future = CompletableFuture.supplyAsync(() -> {
             try {
+                log.info("Archivo descargado correctamenteAsync");
                 InputStream inputStream = ftpconnection.retrieveFileStream(folder + ftpRelativePath);
-                if (inputStream == null) {
-                    throw new IOException(
-                            "Could not retrieve file stream. FTP server replied: " + ftpconnection.getReplyString());
-                }
-                if (!ftpconnection.completePendingCommand()) {
-                    throw new IOException(
-                            "Error completing FTP command. FTP server replied: " + ftpconnection.getReplyString());
-                }
+                ftpconnection.completePendingCommand();
                 return inputStream;
             } catch (Exception e) {
-                throw new CompletionException(new FtpErrors(
-                        new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo descargar el archivo.")));
+                ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "No se pudo descargar el archivo.");
+                log.error(errorMessage.toString());
+                throw new FtpErrors(errorMessage);
             }
         });
+        
+        return future;
     }
 
     @Override
