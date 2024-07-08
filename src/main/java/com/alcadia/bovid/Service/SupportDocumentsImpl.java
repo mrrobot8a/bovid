@@ -56,7 +56,7 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
 
             SupportDocument supportDocuments = new SupportDocument();
 
-            supportDocuments.setFileName(StringUtils.cleanPath(file.getOriginalFilename()));
+            supportDocuments.setFileName(nameFile);
             supportDocuments.setUrlFile(urlFile);
 
             ftpServiceimpl.uploadFileToFTP(inputStream, folder, nameFile);
@@ -115,20 +115,21 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             String folderSearch = fileName.endsWith(".pdf") ? Utils.NAME_FOLDER_SUPPORTDOCUMENTS
                     : Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA;
 
-            
             log.info("fileInputStreamFtp primer paso : ");
             // ftpServiceimpl.getallFiles();
             InputStream fileInputStreamFtp = ftpServiceimpl.downloadFileFromFTP(fileName,
                     folderSearch);
-            log.info("fileInputStreamFtp : " + fileInputStreamFtp.available()+"$$");
+            log.info("fileInputStreamFtp : " + fileInputStreamFtp.available() + "$$");
             {
                 byte[] bytes = IOUtils.toByteArray(fileInputStreamFtp);
                 fileInputStreamFtp.close();
                 HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
                 headers.setContentDispositionFormData("attachment", fileName);
+                headers.setContentType(fileName.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.APPLICATION_PDF);
                 headers.setCacheControl("no-cache, no-store, must-revalidate");
                 headers.setPragma("no-cache");
+
+                headers.add("Access-Control-Expose-Headers", "Content-Disposition");
 
                 return ResponseEntity.ok().headers(headers).body(bytes);
             }
@@ -140,15 +141,14 @@ public class SupportDocumentsImpl implements ISupportDocumentsService {
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             ErrorMessage errorMessage = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error al descargar el archivo: " + e.getMessage());
             log.error(errorMessage.toString());
             throw new FtpErrors(errorMessage);
-        }
-        finally {
+        } finally {
             ftpServiceimpl.disconnectFTP();
-        
+
         }
 
     }

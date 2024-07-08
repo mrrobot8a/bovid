@@ -22,6 +22,7 @@ public class MarcaganderaDto {
     private String etiqueta;
     private String urlImage;
     private String similitud;
+    private Boolean isDeleted;
 
     @JsonProperty("ubicacionList")
     private List<UbicacionDto> ubicacionDtoList ;

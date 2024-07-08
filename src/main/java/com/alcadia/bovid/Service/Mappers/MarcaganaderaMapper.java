@@ -99,15 +99,21 @@ public enum MarcaganaderaMapper implements Function<MarcaGanadera, MarcaganderaD
             String[] filesNameImageMarcaGanadero) {
         Set<MarcaGanadera> marcaGanaderaSet = GanaderoEntity.getMarcaGanadera();
 
+        // Eliminar marcas ganaderas marcadas como eliminadas y con el mismo ID que las
+        // de marcaGanaderaDto
+        marcaGanaderaSet.removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted());
+
         // Si hay más de un elemento en el arreglo de imágenes, crear copias de la marca
         // ganadera y agregarlas al conjunto
         Arrays.stream(filesNameImageMarcaGanadero, 0, filesNameImageMarcaGanadero.length)
                 .forEach(name -> {
+
                     MarcaGanadera nuevaMarcaGanadera = new MarcaGanadera();
-                   
+
                     String urlFile = Utils.URL_BASE.concat(name);
-                   
-                    nuevaMarcaGanadera.setDescription("nombre de la marca ganadera"+name.trim()+"url de la imagen"+urlFile);
+
+                    nuevaMarcaGanadera
+                            .setDescription("nombre de la marca ganadera" + name.trim() + "url de la imagen" + urlFile);
                     nuevaMarcaGanadera.setEtiqueta(name);
                     nuevaMarcaGanadera.setUrlImage(urlFile);
 
@@ -133,7 +139,6 @@ public enum MarcaganaderaMapper implements Function<MarcaGanadera, MarcaganderaD
         return marcaGanaderaSet;
     }
 
-  
     // private List<UbicacionDto> mapUbicacionListDto(List<UbicacionDto> set) {
     // return set.stream()
     // .map(ubicacion -> {

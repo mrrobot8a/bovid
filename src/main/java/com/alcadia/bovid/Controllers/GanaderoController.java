@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/ganadero")
+@RequestMapping("/user/ganadero")
 public class GanaderoController {
 
     private final IGanaderoService ganaderoService;

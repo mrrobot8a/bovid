@@ -129,7 +129,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
 
             SupportDocument supportDocument = supportDocumentsImpl.saveFileDocument(fileSupportDocuments,
                     uniqueFileNameDocuments,
-                    Utils.NAME_FOLDER_SUPPORTDOCUMENTS);
+                    Utils.NAME_FOLDER_SUPPORTDOCUMENTS); 
 
             // se mapea el Dto de marca ganadera a la entidad de marca ganadera
             Set<MarcaGanadera> marcaganaderaEntity = MarcaganaderaMapper.INSTANCE
@@ -172,7 +172,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
         return uuid + "_" + StringUtils.cleanPath(nameFile);
     }
 
-    private String createNameUniqueFile(String nameFile) {
+    private String  createNameUniqueFile(String nameFile) {
         return UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(nameFile);
     }
 
@@ -248,7 +248,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
             }
             // si no viene con archivos y con imagenes
             if (fileSupportDocuments == null && imageMarcaGanadero == null) {
-                updateganaderoSinFiles(ganderoDto, ganaderoEntity);
+                updateganaderoSinFiles(ganderoDto, ganaderoEntity,ganderoDto.getMarcasGanaderaDtos().get(0));
 
             }
 
@@ -259,7 +259,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
                         Utils.NAME_FOLDER_SUPPORTDOCUMENTS);
                 ganaderoEntity.setSupportDocument(supportDocument);
             }
-
+            // si viene con marca y con archivo documento identidad
             if (imageMarcaGanadero != null && fileSupportDocuments == null) {
                 String[] filesNameImageMarcaGanadero = Arrays.stream(imageMarcaGanadero)
                         .map(MultipartFile::getOriginalFilename)
@@ -296,9 +296,14 @@ public class GanaderoServiceImpl implements IGanaderoService {
 
     }
 
-    private void updateganaderoSinFiles(GanaderoDto ganderoDto, Ganadero ganaderoEntity) {
+    private void updateganaderoSinFiles(GanaderoDto ganderoDto, Ganadero ganaderoEntity , MarcaganderaDto marcaGanaderaDto) {
+
         ganaderoEntity.getMarcaGanadera().forEach(marca -> {
-            if (marca.getId() == ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getId()) {
+
+            if(marca.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted()){
+                ganaderoEntity.getMarcaGanadera().removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted());
+
+            }else if (marca.getId() == ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getId()) {
 
                 marca.setDescription(
                         ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getDescription());

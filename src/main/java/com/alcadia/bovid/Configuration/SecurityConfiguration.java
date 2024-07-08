@@ -44,7 +44,7 @@ public class SecurityConfiguration {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**", "/auth**").permitAll();
-                    auth.requestMatchers("/admin/**").hasAnyRole(Roles.ADMIN, Roles.Usuario, Roles.FUNCIONARIO);
+                    auth.requestMatchers("/admin/**").hasAnyRole(Roles.ADMIN, Roles.Usuario);
                     auth.requestMatchers("/user/**", "/user**").hasAnyRole(Roles.FUNCIONARIO,
                             Roles.ADMIN, Roles.Usuario);
                     auth.anyRequest().authenticated();
@@ -60,14 +60,15 @@ public class SecurityConfiguration {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:4200",
                         "http://localhost:5173/", "http://localhost:8000/", "http://localhost:8000",
-                        "http://localhost:48496","https://665922d5497f3aaadbaaf8b0--melodic-halva-c4b1b1.netlify.app/",
+                        "http://localhost:48496", "https://665922d5497f3aaadbaaf8b0--melodic-halva-c4b1b1.netlify.app/",
                         "https://665922d5497f3aaadbaaf8b0--melodic-halva-c4b1b1.netlify.app",
-                         "https://bovid.site/", "https://bovid.site", "http://bovid.site/",
-                        "http://bovid.site","https://strong-toffee-1046b5.netlify.app/","https://strong-toffee-1046b5.netlify.app"));
+                        "https://bovid.site/", "https://bovid.site", "http://bovid.site/",
+                        "http://bovid.site", "https://strong-toffee-1046b5.netlify.app/",
+                        "https://strong-toffee-1046b5.netlify.app"));
                 config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);
-                config.setExposedHeaders(Arrays.asList("Authorization"));
+                config.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
                 config.setMaxAge(3600L);
                 return config;
             }
