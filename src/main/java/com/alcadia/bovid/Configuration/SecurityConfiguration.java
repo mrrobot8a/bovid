@@ -44,7 +44,7 @@ public class SecurityConfiguration {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**", "/auth**").permitAll();
-                    auth.requestMatchers("/admin/**").hasAnyRole(Roles.ADMIN, Roles.Usuario);
+                    auth.requestMatchers("/admin/**").hasAnyRole(Roles.ADMIN, Roles.FUNCIONARIO, Roles.Usuario);
                     auth.requestMatchers("/user/**", "/user**").hasAnyRole(Roles.FUNCIONARIO,
                             Roles.ADMIN, Roles.Usuario);
                     auth.anyRequest().authenticated();
