@@ -20,7 +20,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
       
   security:
     user:
@@ -60,10 +60,10 @@ jwt:
 
 # Configuración FTP
 ftp:
-  server: 127.0.0.1
+  server: 192.168.1.10
   port: 21
-  username: ftpbovid 
-  password: serestadojoven
+  username: mrrobot 
+  password: 123456
 
 # Enable multipart uploads
 
