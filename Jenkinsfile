@@ -14,7 +14,7 @@ pipeline {
         MYSQL_PORT = '3306'
         MYSQL_DB = 'db_marcaganaderaTest'
         MYSQL_USER = 'alcaldia'
-        MYSQL_PASSWORD = 'Root-1230'
+        MYSQL_PASSWORD = 'Admin-1230'
         PROJECT_DIRECTORY = '/var/lib/jenkins/workspace/deploy-App-backend-springboot-bovid'
         PROJECT_DIRECTOR  = '/home/ubuntu/projectbovid/target/'
         
