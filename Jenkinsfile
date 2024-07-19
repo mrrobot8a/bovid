@@ -106,7 +106,7 @@ pipeline {
                 echo "La base de datos ${MYSQL_DB} ya existe. No es necesario crearla."
             } else {
                 echo "La base de datos ${MYSQL_DB} no existe. Creándola..."
-                sh "mysql -h localhost -P 3306 -u root -p${MYSQL_PASSWORD} -e \"CREATE DATABASE ${MYSQL_DB};\""
+                sh "mysql -h localhost -P 3306 -u root -p Root-1230 -e \"CREATE DATABASE ${MYSQL_DB};\""
                 echo "Base de datos ${MYSQL_DB} creada con éxito."
             }
         }
