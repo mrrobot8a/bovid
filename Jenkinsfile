@@ -12,7 +12,7 @@ pipeline {
         JAR_FILE = ''
         MYSQL_HOST = 'localhost'
         MYSQL_PORT = '3306'
-        MYSQL_DB = 'db_marcaganaderaTest'
+        MYSQL_DB = 'devdb'
         MYSQL_USER = 'alcaldia'
         MYSQL_PASSWORD = 'Admin-1230'
         PROJECT_DIRECTORY = '/var/lib/jenkins/workspace/deploy-App-backend-springboot-bovid'
