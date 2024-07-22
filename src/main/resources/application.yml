@@ -9,6 +9,7 @@ server:
     key-alias: baeldung
     enabled: true
 
+
 # Configuración de la base de datos MySQL
 spring:
   datasource:
