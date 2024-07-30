@@ -68,56 +68,46 @@ public class GanaderoServiceImpl implements IGanaderoService {
             String[] fileNameForDB = Arrays.stream(imageMarcaGanadero).map(MultipartFile::getOriginalFilename)
                     .toArray(String[]::new);
 
-            // Procesar el arreglo de imágenes con Stream
-            Arrays.stream(filesNameImageMarcaGanadero)
-                    // Mapear cada MultipartFile al nombre de archivo
-
-                    // Filtrar si hay algún nombre de archivo (para asegurarse de que hay imágenes
-                    // en el arreglo)
-                    .filter(Objects::nonNull)
-                    .findFirst() // Obtener el primer nombre de archivo (si existe)
-                    .ifPresent(fileName -> {
-                        String nameForDB = fileNameForDB[0];
-                        // Si la lista de marcas ganaderas está vacía, agregar una nueva marca ganadera
-                        // con los datos de la imagen
-                        if (ganderoDto.getMarcasGanaderaDtos().isEmpty()) {
-                            MarcaganderaDto nuevaMarca = new MarcaganderaDto();
-                            nuevaMarca.setEtiqueta(fileName);
-                            nuevaMarca.setUrlImage(Utils.URL_BASE.concat(filesNameImageMarcaGanadero[0]));
-                            nuevaMarca.setDescription("nombre de la marca ganadera" + nameForDB.trim()
-                                    + "url de la imagen" + Utils.URL_BASE.concat(fileName));
-                            ganderoDto.getMarcasGanaderaDtos().add(nuevaMarca);
-                        } else {
-                            // Obtener la primera marca ganadera de la lista y actualizar la etiqueta y la
-                            // URL de la imagen
-                            MarcaganderaDto marcaExistente = ganderoDto.getMarcasGanaderaDtos().get(0);
-                            marcaExistente.setEtiqueta(fileName);
-                            marcaExistente.setUrlImage(Utils.URL_BASE.concat(filesNameImageMarcaGanadero[0]));
-                            marcaExistente.setDescription("nombre de la marca ganadera" + nameForDB.trim()
-                                    + "url de la imagen" + Utils.URL_BASE.concat(fileName));
-                        }
-                    });
-
-            if (imageMarcaGanadero.length > 1) {
-
-                for (int i = 1; i < filesNameImageMarcaGanadero.length; i++) {
-                    String name = filesNameImageMarcaGanadero[i];
-                    String nameForDB = fileNameForDB[i];
-                    MarcaganderaDto marcaGanaderaCopy = MarcaganaderaMapper.INSTANCE
-                            .copyObjectMarcaGanaderaDto(ganderoDto.getMarcasGanaderaDtos().get(0));
-
-                    String urlFile = Utils.URL_BASE.concat(name);
-
-                    marcaGanaderaCopy.setEtiqueta(name);
-                    marcaGanaderaCopy.setDescription(
-                            "nombre de la marca ganadera" + nameForDB.trim() + "url de la imagen" + urlFile);
-                    marcaGanaderaCopy.setUrlImage(urlFile);
-
-                    ganderoDto.getMarcasGanaderaDtos().add(marcaGanaderaCopy);
-                }
-            }
-
             Ganadero ganaderoEntity = new Ganadero();
+
+            // // Procesar el arreglo de imágenes con Stream
+            // Arrays.stream(filesNameImageMarcaGanadero)
+            //         // Mapear cada MultipartFile al nombre de archivo
+
+            //         // Filtrar si hay algún nombre de archivo (para asegurarse de que hay imágenes
+            //         // en el arreglo)
+            //         .filter(Objects::nonNull)
+            //         .findFirst() // Obtener el primer nombre de archivo (si existe)
+            //         .ifPresent(fileName -> {
+            //             String nameForDB = fileNameForDB[0];
+            //             // Si la lista de marcas ganaderas está vacía, agregar una nueva marca ganadera
+            //             // con los datos de la imagen
+            //             if (ganderoDto.getMarcasGanaderaDtos().isEmpty()) {
+            //                 MarcaganderaDto nuevaMarca = new MarcaganderaDto();
+            //                 nuevaMarca.setEtiqueta(fileName);
+            //                 nuevaMarca.setUrlImage(Utils.URL_BASE.concat(filesNameImageMarcaGanadero[0]));
+            //                 nuevaMarca.setDescription("nombre de la marca ganadera" + nameForDB.trim()
+            //                         + "url de la imagen" + Utils.URL_BASE.concat(fileName));
+            //                 ganderoDto.getMarcasGanaderaDtos().add(nuevaMarca);
+            //             } else {
+            //                 // Obtener la primera marca ganadera de la lista y actualizar la etiqueta y la
+            //                 // URL de la imagen
+            //                 MarcaganderaDto marcaExistente = ganderoDto.getMarcasGanaderaDtos().get(0);
+            //                 marcaExistente.setEtiqueta(fileName);
+            //                 marcaExistente.setUrlImage(Utils.URL_BASE.concat(filesNameImageMarcaGanadero[0]));
+            //                 marcaExistente.setDescription("nombre de la marca ganadera" + nameForDB.trim()
+            //                         + "url de la imagen" + Utils.URL_BASE.concat(fileName));
+            //             }
+            //         });
+
+            // if (imageMarcaGanadero.length > 1) {
+
+                Set<MarcaGanadera> marcaGanaderaCopy = MarcaganaderaMapper.INSTANCE
+                        .copyObjectMarcaGanaderaDto(ganderoDto.getMarcasGanaderaDtos(), filesNameImageMarcaGanadero);
+
+            // }
+
+           
 
             ganaderoEntity.setFirstName(ganderoDto.getFirstName());
             ganaderoEntity.setLastName(ganderoDto.getLastName());
@@ -129,13 +119,12 @@ public class GanaderoServiceImpl implements IGanaderoService {
 
             SupportDocument supportDocument = supportDocumentsImpl.saveFileDocument(fileSupportDocuments,
                     uniqueFileNameDocuments,
-                    Utils.NAME_FOLDER_SUPPORTDOCUMENTS); 
+                    Utils.NAME_FOLDER_SUPPORTDOCUMENTS);
 
             // se mapea el Dto de marca ganadera a la entidad de marca ganadera
-            Set<MarcaGanadera> marcaganaderaEntity = MarcaganaderaMapper.INSTANCE
-                    .marcaGanaderaDtoToMarcaGanadera(ganderoDto.getMarcasGanaderaDtos());
+            ganaderoEntity.setMarcaGanadera(marcaGanaderaCopy);
 
-            ganaderoEntity.setMarcaGanadera(marcaganaderaEntity);
+            // ganaderoEntity.setMarcaGanadera(marcaganaderaEntity);
 
             ganaderoEntity.setSupportDocument(supportDocument);
 
@@ -172,7 +161,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
         return uuid + "_" + StringUtils.cleanPath(nameFile);
     }
 
-    private String  createNameUniqueFile(String nameFile) {
+    private String createNameUniqueFile(String nameFile) {
         return UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(nameFile);
     }
 
@@ -240,7 +229,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
                         Utils.NAME_FOLDER_SUPPORTDOCUMENTS);
 
                 Set<MarcaGanadera> setMarcaGanaderas = MarcaganaderaMapper.INSTANCE
-                        .UpdateMarcaGanadera(ganderoDto.getMarcasGanaderaDtos().get(0), ganaderoEntity,
+                        .updateMarcaGanadera(ganderoDto.getMarcasGanaderaDtos(), ganaderoEntity,
                                 filesNameImageMarcaGanadero);
                 ganaderoEntity.setMarcaGanadera(setMarcaGanaderas);
                 ganaderoEntity.setSupportDocument(supportDocument);
@@ -248,7 +237,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
             }
             // si no viene con archivos y con imagenes
             if (fileSupportDocuments == null && imageMarcaGanadero == null) {
-                updateganaderoSinFiles(ganderoDto, ganaderoEntity,ganderoDto.getMarcasGanaderaDtos().get(0));
+                updateganaderoSinFiles(ganderoDto, ganaderoEntity, ganderoDto.getMarcasGanaderaDtos().get(0));
 
             }
 
@@ -261,6 +250,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
             }
             // si viene con marca y con archivo documento identidad
             if (imageMarcaGanadero != null && fileSupportDocuments == null) {
+
                 String[] filesNameImageMarcaGanadero = Arrays.stream(imageMarcaGanadero)
                         .map(MultipartFile::getOriginalFilename)
                         .map(name -> createNameUniqueFileImage(name, 0, 5))
@@ -270,7 +260,7 @@ public class GanaderoServiceImpl implements IGanaderoService {
                         Utils.NAME_FOLDER_IMAGES_MARCA_GANADERA, filesNameImageMarcaGanadero);
 
                 Set<MarcaGanadera> setMarcaGanaderas = MarcaganaderaMapper.INSTANCE
-                        .UpdateMarcaGanadera(ganderoDto.getMarcasGanaderaDtos().get(0), ganaderoEntity,
+                        .updateMarcaGanadera(ganderoDto.getMarcasGanaderaDtos(), ganaderoEntity,
                                 filesNameImageMarcaGanadero);
                 ganaderoEntity.setMarcaGanadera(setMarcaGanaderas);
             }
@@ -296,14 +286,17 @@ public class GanaderoServiceImpl implements IGanaderoService {
 
     }
 
-    private void updateganaderoSinFiles(GanaderoDto ganderoDto, Ganadero ganaderoEntity , MarcaganderaDto marcaGanaderaDto) {
+    private void updateganaderoSinFiles(GanaderoDto ganderoDto, Ganadero ganaderoEntity,
+            MarcaganderaDto marcaGanaderaDto) {
 
         ganaderoEntity.getMarcaGanadera().forEach(marca -> {
 
-            if(marca.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted()){
-                ganaderoEntity.getMarcaGanadera().removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted());
+            if (marca.getId().equals(marcaGanaderaDto.getId()) && marcaGanaderaDto.getIsDeleted()) {
+                ganaderoEntity.getMarcaGanadera()
+                        .removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.getId())
+                                && marcaGanaderaDto.getIsDeleted());
 
-            }else if (marca.getId() == ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getId()) {
+            } else if (marca.getId() == ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getId()) {
 
                 marca.setDescription(
                         ganderoDto.getMarcasGanaderaDtos().stream().findFirst().get().getDescription());

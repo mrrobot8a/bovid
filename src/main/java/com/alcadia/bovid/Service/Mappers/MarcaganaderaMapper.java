@@ -1,15 +1,15 @@
 package com.alcadia.bovid.Service.Mappers;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.util.StringUtils;
 
 import com.alcadia.bovid.Models.Dto.MarcaganderaDto;
 import com.alcadia.bovid.Models.Dto.UbicacionDto;
@@ -70,44 +70,16 @@ public enum MarcaganaderaMapper implements Function<MarcaGanadera, MarcaganderaD
         return modelMapper.map(zona, Zona.class);
     }
 
-    public MarcaganderaDto copyObjectMarcaGanaderaDto(MarcaganderaDto marcaGanadera) {
-
-        MarcaganderaDto marcaganderaDto = new MarcaganderaDto();
-
-        marcaganderaDto.setDescription(marcaGanadera.getDescription());
-        marcaganderaDto.setEtiqueta(marcaGanadera.getEtiqueta());
-        marcaganderaDto.setUrlImage(marcaGanadera.getUrlImage());
-        marcaganderaDto.setUbicacionDtoList(marcaGanadera.getUbicacionDtoList().stream().map(ubicacion -> {
-
-            UbicacionDto ubicacionDto = new UbicacionDto();
-
-            ubicacionDto.setNameCorregimiento(ubicacion.getNameCorregimiento());
-            ubicacionDto.setNameMunicipio(ubicacion.getNameMunicipio());
-            ubicacionDto.setNameDepartamento(ubicacion.getNameDepartamento());
-            ubicacionDto.setDirection(ubicacion.getDirection());
-            ubicacionDto.setZonaDto(ubicacion.getZonaDto());
-
-            return ubicacionDto;
-
-        }).collect(java.util.stream.Collectors.toList()));
-
-        return marcaganderaDto;
-
-    }
-
-    public Set<MarcaGanadera> UpdateMarcaGanadera(MarcaganderaDto marcaGanaderaDto, Ganadero GanaderoEntity,
+    public Set<MarcaGanadera> copyObjectMarcaGanaderaDto(
+            List<MarcaganderaDto> marcaGanaderaDto,
             String[] filesNameImageMarcaGanadero) {
-        Set<MarcaGanadera> marcaGanaderaSet = GanaderoEntity.getMarcaGanadera();
 
-        // Eliminar marcas ganaderas marcadas como eliminadas y con el mismo ID que las
-        // de marcaGanaderaDto
-        marcaGanaderaSet.removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.getId() )&& marcaGanaderaDto.getIsDeleted());
+        Set<MarcaGanadera> marcaGanaderaSet = new HashSet<>();
 
-        // Si hay más de un elemento en el arreglo de imágenes, crear copias de la marca
-        // ganadera y agregarlas al conjunto
-        Arrays.stream(filesNameImageMarcaGanadero, 0, filesNameImageMarcaGanadero.length)
-                .forEach(name -> {
+        IntStream.range(0, filesNameImageMarcaGanadero.length)
+                .mapToObj(index -> {
 
+                    String name = filesNameImageMarcaGanadero[index];
                     MarcaGanadera nuevaMarcaGanadera = new MarcaGanadera();
 
                     String urlFile = Utils.URL_BASE.concat(name);
@@ -117,24 +89,110 @@ public enum MarcaganaderaMapper implements Function<MarcaGanadera, MarcaganderaD
                     nuevaMarcaGanadera.setEtiqueta(name);
                     nuevaMarcaGanadera.setUrlImage(urlFile);
 
-                    // Copiar y configurar la ubicación
-                    marcaGanaderaDto.getUbicacionDtoList().forEach(ubicacionDto -> {
+                    List<UbicacionDto> ubicacionDtoList = marcaGanaderaDto.get(index).getUbicacionDtoList();
+                    // Asegúrate de que `ubicacionDtoList` tiene suficientes elementos
+                    if (!ubicacionDtoList.isEmpty()) {
+                        UbicacionDto ubicacionDto = ubicacionDtoList.get(0); // Obteniendo el primer elemento como
+                        System.out.print(ubicacionDto); // ejemplo
+
                         Ubicacion ubicacion = new Ubicacion();
                         ubicacion.setDirection(ubicacionDto.getDirection());
                         ubicacion.setNameCorregimiento(ubicacionDto.getNameCorregimiento());
                         ubicacion.setNameDepartamento(ubicacionDto.getNameDepartamento());
                         ubicacion.setNameMunicipio(ubicacionDto.getNameMunicipio());
 
-                        // Configurar la zona
+                        // Configura Zona
                         Zona zona = new Zona();
                         zona.setCodigoPostalCode(ubicacionDto.getZonaDto().getCodigoPostalCode());
                         ubicacion.setZona(zona);
 
                         nuevaMarcaGanadera.getUbicacionList().add(ubicacion);
-                    });
+                    }
 
-                    marcaGanaderaSet.add(nuevaMarcaGanadera); // Agregar la nueva marca ganadera al conjunto
-                });
+                    return nuevaMarcaGanadera;
+
+                }).forEach(marcaGanaderaSet::add);
+
+        return marcaGanaderaSet;
+    }
+
+    public Set<MarcaGanadera> updateMarcaGanadera(List<MarcaganderaDto> marcaGanaderaDto, Ganadero ganaderoEntity,
+            String[] filesNameImageMarcaGanadero) {
+        Set<MarcaGanadera> marcaGanaderaSet = ganaderoEntity.getMarcaGanadera();
+
+        // Find existing MarcaGanadera by ID and update it
+        Optional<MarcaGanadera> existingMarcaGanadera = marcaGanaderaSet.stream()
+                .filter(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.get(0).getId()))
+                .findFirst();
+
+        if (marcaGanaderaDto.get(0).getIsDeleted() && marcaGanaderaDto.get(0).getId() != null) {
+            // Eliminar marcas ganaderas marcadas como eliminadas y con el mismo ID que las
+            // de marcaGanaderaDto
+            marcaGanaderaSet.removeIf(marcaGanadera -> marcaGanadera.getId().equals(marcaGanaderaDto.get(0).getId())
+                    && marcaGanaderaDto.get(0).getIsDeleted());
+
+        } else if (existingMarcaGanadera.isPresent() && !marcaGanaderaDto.get(0).getIsDeleted()) {
+
+            MarcaGanadera marcaGanaderaToUpdate = existingMarcaGanadera.get();
+            marcaGanaderaToUpdate.setDescription(marcaGanaderaDto.get(0).getDescription());
+            marcaGanaderaToUpdate.setEtiqueta(marcaGanaderaDto.get(0).getEtiqueta());
+            marcaGanaderaToUpdate.setUrlImage(marcaGanaderaDto.get(0).getUrlImage());
+
+            // Update Ubicacion
+            marcaGanaderaDto.get(0).getUbicacionDtoList().forEach(ubicacionDto -> {
+                Ubicacion ubicacionEntity = new ArrayList<>(marcaGanaderaToUpdate.getUbicacionList()).get(0);
+                ubicacionEntity.setDirection(ubicacionDto.getDirection());
+                ubicacionEntity.setNameCorregimiento(ubicacionDto.getNameCorregimiento());
+                ubicacionEntity.setNameDepartamento(ubicacionDto.getNameDepartamento());
+                ubicacionEntity.setNameMunicipio(ubicacionDto.getNameMunicipio());
+
+                // update Zona
+                Zona zona = ubicacionEntity.getZona();
+                zona.setCodigoPostalCode(ubicacionDto.getZonaDto().getCodigoPostalCode());
+                ubicacionEntity.setZona(zona);
+
+                marcaGanaderaToUpdate.getUbicacionList().add(ubicacionEntity);
+            });
+
+        }
+
+        IntStream.range(0, filesNameImageMarcaGanadero.length)
+                .mapToObj(index -> {
+
+                    int i = filesNameImageMarcaGanadero.length != 1 ? index : index + 1;
+                    String name = filesNameImageMarcaGanadero[index];
+                    MarcaGanadera nuevaMarcaGanadera = new MarcaGanadera();
+
+                    String urlFile = Utils.URL_BASE.concat(name);
+
+                    nuevaMarcaGanadera
+                            .setDescription("nombre de la marca ganadera" + name.trim() + "url de la imagen" + urlFile);
+                    nuevaMarcaGanadera.setEtiqueta(name);
+                    nuevaMarcaGanadera.setUrlImage(urlFile);
+
+                    List<UbicacionDto> ubicacionDtoList = marcaGanaderaDto.get(index + 1).getUbicacionDtoList();
+                    // Asegúrate de que `ubicacionDtoList` tiene suficientes elementos
+                    if (!ubicacionDtoList.isEmpty()) {
+                        UbicacionDto ubicacionDto = ubicacionDtoList.get(0); // Obteniendo el primer elemento como
+                        System.out.print(ubicacionDto); // ejemplo
+
+                        Ubicacion ubicacion = new Ubicacion();
+                        ubicacion.setDirection(ubicacionDto.getDirection());
+                        ubicacion.setNameCorregimiento(ubicacionDto.getNameCorregimiento());
+                        ubicacion.setNameDepartamento(ubicacionDto.getNameDepartamento());
+                        ubicacion.setNameMunicipio(ubicacionDto.getNameMunicipio());
+
+                        // Configura Zona
+                        Zona zona = new Zona();
+                        zona.setCodigoPostalCode(ubicacionDto.getZonaDto().getCodigoPostalCode());
+                        ubicacion.setZona(zona);
+
+                        nuevaMarcaGanadera.getUbicacionList().add(ubicacion);
+                    }
+
+                    return nuevaMarcaGanadera;
+
+                }).forEach(marcaGanaderaSet::add);
 
         return marcaGanaderaSet;
     }

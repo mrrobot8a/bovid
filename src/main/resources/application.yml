@@ -2,12 +2,12 @@
 server:
   port: 8000
   address: 0.0.0.0
-  ssl:
-    key-store: classpath:baeldung.p12
-    key-store-password: alcaldia
-    key-store-type: PKCS12
-    key-alias: baeldung
-    enabled: true
+  # ssl:
+  #   key-store: classpath:baeldung.p12
+  #   key-store-password: alcaldia
+  #   key-store-type: PKCS12
+  #   key-alias: baeldung
+  #   enabled: true
 
 
 # Configuración de la base de datos MySQL
@@ -21,7 +21,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       
   security:
     user:
